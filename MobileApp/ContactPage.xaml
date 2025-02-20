@@ -1,0 +1,13 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MobileApp.ContactPage"
+             Title="Contact Us">
+    <VerticalStackLayout Padding="20" Spacing="20">
+
+        <Label Text="Contact Us" FontSize="24" HorizontalOptions="Center"/>
+        <Label Text="Email: support@aircraftmanagement.com"/>
+        <Label Text="Phone: +1 123 456 7890"/>
+        <Button Text="Back to Home" Clicked="OnBackClicked"/>
+
+    </VerticalStackLayout>
+</ContentPage>

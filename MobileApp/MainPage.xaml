@@ -1,0 +1,15 @@
+﻿<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MobileApp.MainPage"
+             Title="Home">
+    <VerticalStackLayout Padding="20" Spacing="20" VerticalOptions="Center">
+
+        <!-- App Logo -->
+        <Image Source="home_bg.gif" HeightRequest="100" HorizontalOptions="Center"/>
+
+        <Button Text="Register" Clicked="GoToRegister"/>
+        <Button Text="Login" Clicked="GoToLogin"/>
+        <Button Text="Contact Us" Clicked="GoToContact"/>
+
+    </VerticalStackLayout>
+</ContentPage>
