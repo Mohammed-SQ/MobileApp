@@ -2,14 +2,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MobileApp.MainPage"
              Title="Home">
-    <VerticalStackLayout Padding="20" Spacing="20" VerticalOptions="Center">
-
-        <!-- App Logo -->
-        <Image Source="home_bg.gif" HeightRequest="100" HorizontalOptions="Center"/>
-
-        <Button Text="Register" Clicked="GoToRegister"/>
-        <Button Text="Login" Clicked="GoToLogin"/>
-        <Button Text="Contact Us" Clicked="GoToContact"/>
-
-    </VerticalStackLayout>
+    <StackLayout Padding="20" Spacing="10">
+        <Image Source="home_bg.gif" HeightRequest="300" WidthRequest="1000" />
+        <Label Text="Welcome to Our App" FontSize="20" />
+        <Button Text="Login" Clicked="OnLoginClicked" />
+        <Button Text="Register" Clicked="OnRegisterClicked" />
+    </StackLayout>
 </ContentPage>

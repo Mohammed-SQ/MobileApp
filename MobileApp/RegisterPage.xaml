@@ -1,11 +1,28 @@
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+﻿<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MobileApp.RegisterPage"
              Title="Register">
-    <VerticalStackLayout Padding="20" Spacing="20">
-        <Entry x:Name="txtUsername" Placeholder="Username"/>
-        <Entry x:Name="txtEmail" Placeholder="Email" Keyboard="Email"/>
-        <Entry x:Name="txtPassword" Placeholder="Password" IsPassword="True"/>
-        <Button Text="Register" Clicked="Register_Clicked"/>
-    </VerticalStackLayout>
+    <StackLayout Padding="20" Spacing="10">
+        <Image Source="logo.png" HeightRequest="100" WidthRequest="100" />
+        <Label Text="Register" FontSize="20" />
+        <Entry Placeholder="Enter full name" x:Name="FullNameEntry" />
+        <Entry Placeholder="Enter your email" x:Name="EmailEntry" />
+        <Entry Placeholder="Enter password" x:Name="PasswordEntry" IsPassword="True" />
+        <Entry Placeholder="Enter 10-digit number" x:Name="PhoneNumberEntry" MaxLength="10" />
+        <Entry Placeholder="Enter Street, City" x:Name="AddressEntry" />
+        <Picker Title="Select State" x:Name="StatePicker">
+            <Picker.Items>
+                <x:String>Select State</x:String>
+                <x:String>California</x:String>
+                <x:String>Texas</x:String>
+                <x:String>New York</x:String>
+                <x:String>Florida</x:String>
+                <x:String>Illinois</x:String>
+            </Picker.Items>
+        </Picker>
+        <Entry Placeholder="Enter ZIP code" x:Name="ZIPEntry" MaxLength="6" />
+        <Button Text="Register" Clicked="OnRegisterButtonClicked" />
+        <Label Text="Already have an account?" />
+        <Button Text="Login Here" Clicked="OnLoginHereClicked" />
+    </StackLayout>
 </ContentPage>

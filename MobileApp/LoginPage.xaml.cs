@@ -1,64 +1,53 @@
-﻿using System;
+﻿using System.Data.SqlClient;
 using Microsoft.Maui.Controls;
-using Microsoft.Data.SqlClient;
 
 namespace MobileApp
 {
     public partial class LoginPage : ContentPage
     {
-        private readonly string connectionString = "Data Source=.;Initial Catalog=AircraftDB;Integrated Security=True;";
-
         public LoginPage()
         {
             InitializeComponent();
         }
 
-        private async void Login_Clicked(object sender, EventArgs e)
+        private async void OnLoginButtonClicked(object sender, EventArgs e)
         {
-            string email = txtEmail.Text?.Trim();
-            string password = txtPassword.Text?.Trim();
+            string email = EmailEntry.Text.Trim();
+            string password = PasswordEntry.Text.Trim();
 
-            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
-            {
-                await DisplayAlert("Error", "Email and password are required.", "OK");
-                return;
-            }
+            string connectionString = "Data Source=tcp:sql6033.site4now.net,1433;Initial Catalog=db_ab32ed_aircraftdb;User ID=db_ab32ed_aircraftdb_admin;Password=m1234567;";
 
-            try
+            using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                using (var conn = new SqlConnection(connectionString))
+                try
                 {
-                    conn.Open();
-                    string query = "SELECT COUNT(1) FROM Users WHERE Email = @Email AND Password = @Password";
-
-                    using (var cmd = new SqlCommand(query, conn))
+                    connection.Open();
+                    string query = "SELECT * FROM [dbo].[Users] WHERE Email = @Email AND Password = @Password";
+                    using (SqlCommand command = new SqlCommand(query, connection))
                     {
-                        cmd.Parameters.AddWithValue("@Email", email);
-                        cmd.Parameters.AddWithValue("@Password", password);
+                        command.Parameters.AddWithValue("@Email", email);
+                        command.Parameters.AddWithValue("@Password", password);
 
-                        int count = Convert.ToInt32(cmd.ExecuteScalar());
-
-                        if (count == 1)
+                        using (SqlDataReader reader = command.ExecuteReader())
                         {
-                            await DisplayAlert("Success", "Login successful!", "OK");
-                            await Navigation.PushAsync(new MainPage());
-                        }
-                        else
-                        {
-                            await DisplayAlert("Error", "Invalid email or password.", "OK");
+                            if (reader.Read())
+                            {
+                                string fullName = reader.GetString(1);
+                                string role = reader.GetString(4);
+                                await Navigation.PushAsync(new AircraftPage());
+                            }
+                            else
+                            {
+                                await DisplayAlert("Error", "Invalid email or password", "OK");
+                            }
                         }
                     }
                 }
+                catch (SqlException ex)
+                {
+                    await DisplayAlert("Error", $"Database connection failed: {ex.Message}", "OK");
+                }
             }
-            catch (Exception ex)
-            {
-                await DisplayAlert("Error", $"Database connection failed: {ex.Message}", "OK");
-            }
-        }
-
-        private async void GoToRegister(object sender, EventArgs e)
-        {
-            await Navigation.PushAsync(new RegisterPage());
         }
     }
 }

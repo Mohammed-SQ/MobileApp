@@ -1,0 +1,16 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MobileApp.AircraftPage"
+             Title="Aircraft Dashboard">
+    <StackLayout Padding="20" Spacing="10">
+        <Label Text="Welcome to Aircraft Dashboard!" FontSize="20" />
+        <Image Source="plane1.jpg" HeightRequest="100" WidthRequest="150" />
+        <Image Source="plane2.jpg" HeightRequest="100" WidthRequest="150" />
+        <Image Source="plane3.jpg" HeightRequest="100" WidthRequest="150" />
+        <Image Source="plane4.jpg" HeightRequest="100" WidthRequest="150" />
+        <Button Text="View Aircraft" Clicked="OnViewAircraftClicked" />
+        <Button Text="View Flights" Clicked="OnViewFlightsClicked" />
+        <Button Text="Check Maintenance" Clicked="OnCheckMaintenanceClicked" />
+        <Button Text="Logout" Clicked="OnLogoutClicked" />
+    </StackLayout>
+</ContentPage>

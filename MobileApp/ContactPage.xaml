@@ -7,7 +7,7 @@
         <Label Text="Contact Us" FontSize="24" HorizontalOptions="Center"/>
         <Label Text="Email: support@aircraftmanagement.com"/>
         <Label Text="Phone: +1 123 456 7890"/>
-        <Button Text="Back to Home" Clicked="OnBackClicked"/>
+        <Button Text="Back to Home" Clicked="BackClicked"/>
 
     </VerticalStackLayout>
 </ContentPage>

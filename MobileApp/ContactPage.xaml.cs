@@ -9,9 +9,9 @@ namespace MobileApp
             InitializeComponent();
         }
 
-        private async void OnBackClicked(object sender, EventArgs e)
+        private async void BackClicked(object sender, EventArgs e)
         {
-            await Navigation.PopAsync();
+            await Navigation.PushAsync(new MainPage());
         }
     }
 }
