@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="RestaurantPOS.Pages.OrdersPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:RestaurantPOS.Controls"
+    xmlns:data="clr-namespace:RestaurantPOS.Data"
+    xmlns:models="clr-namespace:RestaurantPOS.Models"
+    xmlns:vm="clr-namespace:RestaurantPOS.ViewModels"
+    x:DataType="vm:OrdersViewModel"
+    Shell.NavBarIsVisible="False">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Style x:Key="th" TargetType="Label">
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="VerticalOptions" Value="Center" />
+                <Setter Property="TextColor" Value="White" />
+            </Style>
+            <Style x:Key="td" TargetType="Label">
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="VerticalOptions" Value="Center" />
+                <Setter Property="TextColor" Value="Gray" />
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <Grid ColumnDefinitions=".75*, .25*">
+        <Grid
+            Grid.Column="0"
+            Padding="15"
+            RowDefinitions="Auto, *"
+            RowSpacing="15">
+
+            <Label
+                Grid.Row="0"
+                FontAttributes="Bold"
+                FontSize="22"
+                Text="Orders" />
+
+            <Grid Grid.Row="1">
+                <Grid RowDefinitions="30, *">
+                    <Grid BackgroundColor="Maroon" ColumnDefinitions="90, *, *, *, *,*">
+                        <Label
+                            Grid.Column="0"
+                            Padding="5,0,0,0"
+                            Style="{StaticResource th}"
+                            Text="Order Id" />
+                        <Label
+                            Grid.Column="1"
+                            Style="{StaticResource th}"
+                            Text="Date" />
+                        <Label
+                            Grid.Column="2"
+                            Style="{StaticResource th}"
+                            Text="Amount Paid" />
+                        <Label
+                            Grid.Column="3"
+                            Style="{StaticResource th}"
+                            Text="Payment Mode" />
+                        <Label
+                            Grid.Column="4"
+                            Style="{StaticResource th}"
+                            Text="No. of Items" />
+                    </Grid>
+                    <CollectionView Grid.Row="1" ItemsSource="{Binding Orders}">
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout Orientation="Vertical" />
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:OrderModel">
+                                <Grid ColumnDefinitions="90, *, *, *, *,*" RowDefinitions="2, Auto, Auto, 2">
+                                    <Grid.Triggers>
+                                        <DataTrigger
+                                            Binding="{Binding IsSelected}"
+                                            TargetType="Grid"
+                                            Value="True">
+                                            <Setter Property="BackgroundColor" Value="{StaticResource LightWeat}" />
+                                        </DataTrigger>
+                                    </Grid.Triggers>
+                                    <Label
+                                        Grid.Row="1"
+                                        Grid.Column="0"
+                                        Padding="5,0,0,0"
+                                        Style="{StaticResource td}"
+                                        Text="{Binding Id, StringFormat='# {0}'}" />
+                                    <Label
+                                        Grid.Row="1"
+                                        Grid.Column="1"
+                                        Style="{StaticResource td}"
+                                        Text="{Binding OrderDate, StringFormat='{0:dd/MM/yyyy HH:mm:ss}'}" />
+                                    <Label
+                                        Grid.Row="1"
+                                        Grid.Column="2"
+                                        Style="{StaticResource td}"
+                                        Text="{Binding TotalAmountPaid, StringFormat='{0:C}'}" />
+                                    <Label
+                                        Grid.Row="1"
+                                        Grid.Column="3"
+                                        Style="{StaticResource td}"
+                                        Text="{Binding PaymentMode}" />
+                                    <Label
+                                        Grid.Row="1"
+                                        Grid.Column="4"
+                                        Style="{StaticResource td}"
+                                        Text="{Binding TotalItemsCount, StringFormat='{0} Item(s)'}"
+                                        TextColor="Blue"
+                                        TextDecorations="Underline"
+                                        ToolTipProperties.Text="Click to view details">
+                                        <Label.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding Source={x:RelativeSource AncestorType={x:Type vm:OrdersViewModel}}, Path=SelectOrderCommand}" CommandParameter="{Binding .}" />
+                                        </Label.GestureRecognizers>
+                                    </Label>
+                                    <Button
+                                        Grid.Row="1"
+                                        Grid.Column="5"
+                                        BackgroundColor="DarkSeaGreen"
+                                        Command="{Binding Source={x:RelativeSource AncestorType={x:Type vm:OrdersViewModel}}, Path=SelectOrderCommand}"
+                                        CommandParameter="{Binding .}"
+                                        CornerRadius="10"
+                                        FontSize="14"
+                                        HeightRequest="30"
+                                        HorizontalOptions="Center"
+                                        MinimumHeightRequest="25"
+                                        Text="View Details"
+                                        ToolTipProperties.Text="View order details"
+                                        VerticalOptions="Center" />
+                                    <BoxView
+                                        Grid.Row="3"
+                                        Grid.ColumnSpan="6"
+                                        HeightRequest="1"
+                                        Color="LightGray" />
+
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={x:RelativeSource AncestorType={x:Type vm:OrdersViewModel}}, Path=SelectOrderCommand}" CommandParameter="{Binding .}" />
+                                    </Grid.GestureRecognizers>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </Grid>
+
+                <BoxView
+                    HorizontalOptions="Fill"
+                    IsVisible="{Binding IsLoading}"
+                    Opacity="0.5"
+                    VerticalOptions="Fill"
+                    Color="{StaticResource LightWeat}" />
+
+                <ActivityIndicator
+                    HeightRequest="25"
+                    HorizontalOptions="Center"
+                    IsRunning="{Binding IsLoading}"
+                    VerticalOptions="Center"
+                    WidthRequest="25"
+                    Color="Maroon" />
+            </Grid>
+        </Grid>
+        <Grid
+            Grid.Column="1"
+            BackgroundColor="{StaticResource LightWeat}"
+            RowDefinitions="Auto, *">
+            <Grid Grid.Row="0" ColumnDefinitions="*, Auto">
+                <Label
+                    Grid.Row="0"
+                    FontAttributes="Bold"
+                    FontSize="25"
+                    HorizontalOptions="Center"
+                    HorizontalTextAlignment="Center"
+                    Text="Selected Order Items"
+                    TextColor="Black" />
+                <ImageButton
+                    Grid.Column="1"
+                    Margin="0,0,5,0"
+                    BackgroundColor="Red"
+                    Command="{Binding SelectOrderCommand}"
+                    CornerRadius="5"
+                    HorizontalOptions="End"
+                    MinimumHeightRequest="20"
+                    MinimumWidthRequest="20"
+                    Source="x.png"
+                    ToolTipProperties.Text="Clear Selection"
+                    VerticalOptions="Center" />
+            </Grid>
+            <ContentView
+                Grid.Row="1"
+                Padding="10"
+                BackgroundColor="Wheat">
+                <CollectionView ItemsSource="{Binding OrderItems}">
+                    <CollectionView.ItemsLayout>
+                        <LinearItemsLayout ItemSpacing="2" Orientation="Vertical" />
+                    </CollectionView.ItemsLayout>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="data:OrderItem">
+                            <Grid>
+                                <Border Padding="5" BackgroundColor="{StaticResource LightWeat}">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="10" />
+                                    </Border.StrokeShape>
+                                    <Grid ColumnDefinitions="60, *" ColumnSpacing="10">
+                                        <Border
+                                            Grid.Column="0"
+                                            BackgroundColor="LightGray"
+                                            HeightRequest="60"
+                                            StrokeShape="RoundRectangle 5"
+                                            WidthRequest="60">
+                                            <Image
+                                                Aspect="AspectFit"
+                                                HeightRequest="50"
+                                                Source="{Binding Icon}"
+                                                WidthRequest="50" />
+                                        </Border>
+                                        <VerticalStackLayout Grid.Column="1" Spacing="5">
+                                            <Label
+                                                FontAttributes="Bold"
+                                                FontSize="18"
+                                                Text="{Binding Name}"
+                                                TextColor="Black" />
+                                            <Grid ColumnDefinitions="Auto, *">
+                                                <HorizontalStackLayout Spacing="3">
+                                                    <Label
+                                                        FontSize="18"
+                                                        Text="{Binding Quantity}"
+                                                        TextColor="Maroon" />
+                                                    <Label
+                                                        FontSize="18"
+                                                        Text="x"
+                                                        TextColor="Maroon" />
+                                                    <Label
+                                                        FontSize="18"
+                                                        Text="{Binding Price, StringFormat='{0:C}'}"
+                                                        TextColor="Maroon" />
+                                                </HorizontalStackLayout>
+                                                <Label
+                                                    Grid.Column="1"
+                                                    Margin="0,0,5,0"
+                                                    FontAttributes="Bold"
+                                                    FontSize="18"
+                                                    HorizontalOptions="End"
+                                                    Text="{Binding Amount, StringFormat='{0:C}'}"
+                                                    TextColor="Maroon" />
+
+
+                                            </Grid>
+                                        </VerticalStackLayout>
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                    <CollectionView.EmptyView>
+                        <Grid MinimumHeightRequest="250" RowDefinitions="*, Auto, *">
+                            <VerticalStackLayout Grid.Row="1" Spacing="10">
+                                <Image
+                                    HeightRequest="60"
+                                    HorizontalOptions="Center"
+                                    Source="cylinder_regular_60.png"
+                                    WidthRequest="60" />
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontSize="25"
+                                    HorizontalOptions="Center"
+                                    Text="No Order Selected"
+                                    TextColor="Maroon" />
+                                <Label
+                                    HorizontalOptions="Center"
+                                    HorizontalTextAlignment="Center"
+                                    Text="Please select an order to view its details."
+                                    TextColor="Black" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </CollectionView.EmptyView>
+                </CollectionView>
+            </ContentView>
+        </Grid>
+    </Grid>
+</ContentPage>
