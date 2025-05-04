@@ -125,6 +125,14 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Update="App.xaml.cs">
+	    <SubType>Code</SubType>
+	    <DependentUpon>%(Filename)</DependentUpon>
+	    <ExcludeFromCurrentConfiguration>true</ExcludeFromCurrentConfiguration>
+	  </Compile>
+	</ItemGroup>
+
+	<ItemGroup>
 	  <MauiXaml Update="Controls\CategoriesListControl.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

@@ -28,8 +28,13 @@ namespace FMMSRestaurant.Pages
         protected override async void OnSizeAllocated(double width, double height)
         {
             base.OnSizeAllocated(width, height);
-            await _settingsViewModel.InitializeAsync();
+
+            if (_settingsViewModel != null)
+            {
+                await _settingsViewModel.InitializeAsync();
+            }
         }
+
 
         private async void OnCategorySelected(Models.MenuCategoryModel category)
         {

@@ -23,7 +23,7 @@ public partial class MenuItemsListControl : ContentView
         set => SetValue(ItemsProperty, value);
     }
 
-    public event Action<MenuItem> OnItemSelected;
+    public event Action<MenuItem>? OnItemSelected;
 
     [RelayCommand]
     private void ItemSelected(MenuItem item) => OnItemSelected?.Invoke(item);

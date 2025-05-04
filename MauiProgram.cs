@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Maui;
 using Microsoft.Extensions.Logging;
 using FMMSRestaurant.Pages;
+using FMMSRestaurant.Services;
 using FMMSRestaurant.ViewModels;
 
 namespace FMMSRestaurant
@@ -22,6 +23,9 @@ namespace FMMSRestaurant
 #if DEBUG
             builder.Logging.AddDebug();
 #endif
+
+            // ✅ Register services and view models
+            builder.Services.AddSingleton<ApiService>();
 
             builder.Services
                 .AddSingleton<HomeViewModel>()

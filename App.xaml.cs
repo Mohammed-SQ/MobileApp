@@ -1,19 +1,12 @@
-﻿namespace FMMSRestaurant
-{
-    public partial class App : Application
-    {
-        public App()
-        {
-            InitializeComponent();
-            MainPage = new AppShell();
-        }
+﻿namespace FMMSRestaurant;
 
-        protected override Window CreateWindow(IActivationState? activationState)
-        {
-            var window = base.CreateWindow(activationState);
-            window.MinimumHeight = 760;
-            window.MinimumWidth = 1280;
-            return window;
-        }
+public partial class App : Application
+{
+    public App()
+    {
+        InitializeComponent();
+
+        // Set the main page of the app to the Shell
+        MainPage = new AppShell();
     }
 }

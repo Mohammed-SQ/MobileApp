@@ -5,17 +5,22 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using FMMSRestaurant.Models;
-using FMMSRestaurant.Services;
 using Microsoft.Data.SqlClient;
+using CommunityToolkit.Mvvm.Input;
 
 namespace FMMSRestaurant.ViewModels
 {
     public partial class OrdersViewModel
     {
-        private readonly string _connectionString = "Provider=sqloledb;Data Source=SQL1003.site4now.net,1433;Initial Catalog=db_ab85c8_apprestaurant;User Id=db_ab85c8_apprestaurant_admin;Password=m1234567;";
+        private readonly string _connectionString = "Data Source=SQL1003.site4now.net,1433;Initial Catalog=db_ab85c8_apprestaurant;User Id=db_ab85c8_apprestaurant_admin;Password=m1234567;";
 
-        public ObservableCollection<OrderModel> Orders { get; set; } = new ObservableCollection<OrderModel>();
-        public ObservableCollection<OrderItemModel> OrderItems { get; set; } = new ObservableCollection<OrderItemModel>();
+        public OrdersViewModel()
+        {
+            SelectOrderCommand = new AsyncRelayCommand<OrderModel>(OnSelectOrder);
+        }
+
+        public ObservableCollection<OrderModel> Orders { get; set; } = new();
+        public ObservableCollection<OrderItemModel> OrderItems { get; set; } = new();
         public bool IsLoading { get; set; }
 
         public async Task<bool> PlaceOrderAsync(List<CartModel> cartItems, bool isPaidCash)
@@ -119,7 +124,10 @@ namespace FMMSRestaurant.ViewModels
         }
 
         private OrderModel? _selectedOrder;
-        public ICommand SelectOrderCommand => new Command<OrderModel>(async (order) =>
+
+        public IAsyncRelayCommand<OrderModel> SelectOrderCommand { get; }
+
+        private async Task OnSelectOrder(OrderModel? order)
         {
             if (order == null || order == _selectedOrder)
             {
@@ -152,6 +160,6 @@ namespace FMMSRestaurant.ViewModels
                     Quantity = reader.GetInt32(4)
                 });
             }
-        });
+        }
     }
 }

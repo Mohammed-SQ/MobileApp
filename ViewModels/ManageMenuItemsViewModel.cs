@@ -63,14 +63,18 @@ namespace FMMSRestaurant.ViewModels
 
             IsLoading = true;
 
-            var currentSelectedCategory = Categories.First(c => c.IsSelected);
-            currentSelectedCategory.IsSelected = false;
+            var currentSelectedCategory = Categories.FirstOrDefault(c => c.IsSelected);
+            if (currentSelectedCategory != null)
+                currentSelectedCategory.IsSelected = false;
 
-            var newSelectedCategory = Categories.First(c => c.Id == categoryId);
-            newSelectedCategory.IsSelected = true;
+            var newSelectedCategory = Categories.FirstOrDefault(c => c.Id == categoryId);
+            if (newSelectedCategory != null)
+            {
+                newSelectedCategory.IsSelected = true;
+                SelectedCategory = newSelectedCategory;
+                MenuItems = await _apiService.GetMenuItemsByCategoryIdAsync(SelectedCategory.Id);
+            }
 
-            SelectedCategory = newSelectedCategory;
-            MenuItems = await _apiService.GetMenuItemsByCategoryIdAsync(SelectedCategory.Id);
             IsLoading = false;
         }
 
@@ -149,6 +153,9 @@ namespace FMMSRestaurant.ViewModels
 
         private void HandleMenuItemChanged(MenuItemModel model)
         {
+            if (SelectedCategory == null)
+                return;
+
             var menuItem = MenuItems.FirstOrDefault(m => m.Id == model.Id);
             if (menuItem != null)
             {
