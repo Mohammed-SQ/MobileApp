@@ -3,88 +3,45 @@
     x:Class="FMMSRestaurant.Pages.ManageMenuItemPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:controls="clr-namespace:FMMSRestaurant.Controls"
-    xmlns:data="clr-namespace:FMMSRestaurant.Data"
+    xmlns:viewmodels="clr-namespace:FMMSRestaurant.ViewModels"
     xmlns:models="clr-namespace:FMMSRestaurant.Models"
-    xmlns:vm="clr-namespace:FMMSRestaurant.ViewModels"
-    x:DataType="vm:ManageMenuItemsViewModel"
-    Shell.NavBarIsVisible="False">
+    Title="Manage Menu Items"
+    x:DataType="viewmodels:ManageMenuItemsViewModel">
 
+    <VerticalStackLayout Padding="20">
+        <!-- Category Picker -->
+        <Picker
+            x:Name="CategoryPicker"
+            ItemsSource="{Binding Categories}"
+            SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"
+            Title="Select Category" />
 
-    <Grid ColumnDefinitions=".75*, .25*">
+        <!-- Menu Items List -->
+        <CollectionView
+            ItemsSource="{Binding MenuItems}"
+            SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:MenuItemModel">
+                    <VerticalStackLayout Padding="10">
+                        <Label Text="{Binding Name}" FontSize="16" FontAttributes="Bold" />
+                        <Label Text="{Binding Price, StringFormat='{0:C}'}" FontSize="14" />
+                    </VerticalStackLayout>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
 
-        <Grid
-            Grid.Column="0"
-            Padding="15"
-            RowDefinitions="Auto, Auto, *"
-            RowSpacing="15">
-
-            <Label
-                Grid.Row="0"
-                FontAttributes="Bold"
-                FontSize="22"
-                Text="Manage Menu Items" />
-
-            <controls:CategoriesListControl
-                Grid.Row="1"
-                Categories="{Binding Categories}"
-                OnCategorySelected="OnCategorySelected" />
-
-            <Grid Grid.Row="2">
-
-                <controls:MenuItemsListControl
-                    IsEditingMode="True"
-                    Items="{Binding MenuItems}"
-                    OnItemSelected="OnItemSelected" />
-
-                <BoxView
-                    HorizontalOptions="Fill"
-                    IsVisible="{Binding IsLoading}"
-                    Opacity="0.5"
-                    VerticalOptions="Fill"
-                    Color="{StaticResource LightWeat}" />
-
-                <ActivityIndicator
-                    HeightRequest="25"
-                    HorizontalOptions="Center"
-                    IsRunning="{Binding IsLoading}"
-                    VerticalOptions="Center"
-                    WidthRequest="25"
-                    Color="Maroon" />
-            </Grid>
-
-        </Grid>
-
-        <Grid
-            Grid.Column="1"
-            Padding="0,10"
-            BackgroundColor="{StaticResource LightWeat}"
-            RowDefinitions="Auto, *">
-            <VerticalStackLayout Grid.Row="0" Spacing="5">
-                <controls:CurrentDateTimeControl />
-                <Label
-                    FontAttributes="Bold"
-                    FontSize="25"
-                    HorizontalOptions="Center"
-                    Text="Save Menu Item"
-                    TextColor="Black" />
-            </VerticalStackLayout>
-
-            <Grid
-                Grid.Row="1"
-                Padding="10"
-                BackgroundColor="{StaticResource LightWeat}">
-
-                <controls:SaveMenuItemFormControl
-                    Item="{Binding MenuItem}"
-                    OnCancel="SaveMenuItemFormControl_OnCancel"
-                    OnSaveItem="SaveMenuItemFormControl_OnSaveItem" />
-
-            </Grid>
-
-
-        </Grid>
-
-    </Grid>
-
+        <!-- Action Buttons -->
+        <Button
+            x:Name="EditButton"
+            Command="{Binding EditMenuItemCommand}"
+            Text="Edit" />
+        <Button
+            x:Name="SaveButton"
+            Command="{Binding SaveMenuItemCommand}"
+            Text="Save" />
+        <Button
+            x:Name="CancelButton"
+            Command="{Binding CancelCommand}"
+            Text="Cancel" />
+    </VerticalStackLayout>
 </ContentPage>

@@ -1,247 +1,293 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.Collections.ObjectModel;
+using System.Threading.Tasks;
+using System.Windows.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using FMMSRestaurant.Models;
 using FMMSRestaurant.Services;
-using System.Collections.ObjectModel;
-using MenuItem = FMMSRestaurant.Models.MenuItemModel;
+using FMMSRestaurant.ViewModels;
 
-namespace FMMSRestaurant.ViewModels
+namespace FMMSRestaurant.ViewModels;
+
+public partial class HomeViewModel : ObservableObject
 {
-    public partial class HomeViewModel : ObservableObject, IRecipient<MenuItemChangedMessage>
+    private readonly CloudDatabaseService _dbService;
+    private readonly OrdersViewModel _ordersViewModel;
+
+    private ObservableCollection<MenuItemModel> _menuItems = new();
+    public ObservableCollection<MenuItemModel> MenuItems
     {
-        private readonly ApiService _apiService;
-        private readonly OrdersViewModel _ordersViewModel;
-        private readonly SettingsViewModel _settingsViewModel;
+        get => _menuItems;
+        set => SetProperty(ref _menuItems, value);
+    }
 
-        [ObservableProperty]
-        private MenuCategoryModel[] _categories = [];
+    private ObservableCollection<MenuCategoryModel> _categories = new();
+    public ObservableCollection<MenuCategoryModel> Categories
+    {
+        get => _categories;
+        set => SetProperty(ref _categories, value);
+    }
 
-        [ObservableProperty]
-        private MenuItem[] _menuItems = [];
+    private ObservableCollection<CartModel> _cartItems = new();
+    public ObservableCollection<CartModel> CartItems
+    {
+        get => _cartItems;
+        set => SetProperty(ref _cartItems, value);
+    }
 
-        [ObservableProperty]
-        private MenuCategoryModel? _selectedCategory = null;
+    private MenuCategoryModel? _selectedCategory;
+    public MenuCategoryModel? SelectedCategory
+    {
+        get => _selectedCategory;
+        set => SetProperty(ref _selectedCategory, value);
+    }
 
-        public ObservableCollection<CartModel> CartItems { get; set; } = new();
+    private string _name = "Guest";
+    public string Name
+    {
+        get => _name;
+        set => SetProperty(ref _name, value);
+    }
 
-        [ObservableProperty]
-        private bool _isLoading;
+    private bool _isLoading;
+    public bool IsLoading
+    {
+        get => _isLoading;
+        set => SetProperty(ref _isLoading, value);
+    }
 
-        [ObservableProperty, NotifyPropertyChangedFor(nameof(TaxAmount)), NotifyPropertyChangedFor(nameof(Total))]
-        private decimal _subtotal;
+    private decimal _subtotal;
+    public decimal Subtotal
+    {
+        get => _subtotal;
+        set => SetProperty(ref _subtotal, value);
+    }
 
-        [ObservableProperty, NotifyPropertyChangedFor(nameof(TaxAmount)), NotifyPropertyChangedFor(nameof(Total))]
-        private int _taxPrecentage;
-
-        public decimal TaxAmount => (Subtotal * TaxPrecentage) / 100;
-        public decimal Total => Subtotal + TaxAmount;
-
-        [ObservableProperty]
-        private string _name = "Guest";
-
-        public HomeViewModel(ApiService apiService, OrdersViewModel ordersViewModel, SettingsViewModel settingsViewModel)
+    private int _taxPercentage;
+    public int TaxPercentage
+    {
+        get => _taxPercentage;
+        set
         {
-            _apiService = apiService;
-            _ordersViewModel = ordersViewModel;
-            _settingsViewModel = settingsViewModel;
-
-            CartItems.CollectionChanged += (sender, args) => RecalculateAmounts();
-
-            WeakReferenceMessenger.Default.Register<MenuItemChangedMessage>(this);
-            WeakReferenceMessenger.Default.Register<NameChangedMessage>(this, (recipient, message) => Name = message.Value);
-
-            TaxPrecentage = _settingsViewModel.GetTaxPercentage();
+            SetProperty(ref _taxPercentage, value);
+            UpdateTaxAndTotal();
         }
+    }
 
-        private bool _isInitialized;
+    private decimal _taxAmount;
+    public decimal TaxAmount
+    {
+        get => _taxAmount;
+        set => SetProperty(ref _taxAmount, value);
+    }
 
-        public async ValueTask InitializeAsync()
+    private decimal _total;
+    public decimal Total
+    {
+        get => _total;
+        set => SetProperty(ref _total, value);
+    }
+
+    public ICommand LoadItemsCommand { get; }
+    public ICommand SelectCategoryCommand { get; }
+    public ICommand AddToCartCommand { get; }
+    public ICommand DecreaseQuantityCommand { get; }
+    public ICommand IncreaseQuantityCommand { get; }
+    public ICommand RemoveItemFromCartCommand { get; }
+    public ICommand ClearCartCommand { get; }
+    public ICommand PlaceOrderCommand { get; }
+    public ICommand TaxPercentageClickCommand { get; }
+
+    public HomeViewModel(CloudDatabaseService dbService, OrdersViewModel ordersViewModel, SettingsViewModel settingsViewModel)
+    {
+        _dbService = dbService;
+        _ordersViewModel = ordersViewModel;
+
+        LoadItemsCommand = new RelayCommand(async () => await LoadItemsAsync());
+        SelectCategoryCommand = new RelayCommand<MenuCategoryModel?>(SelectCategory);
+        AddToCartCommand = new RelayCommand<MenuItemModel?>(AddToCart);
+        DecreaseQuantityCommand = new RelayCommand<CartModel>(DecreaseQuantity);
+        IncreaseQuantityCommand = new RelayCommand<CartModel>(IncreaseQuantity);
+        RemoveItemFromCartCommand = new RelayCommand<CartModel>(RemoveItemFromCart);
+        ClearCartCommand = new RelayCommand(ClearCart);
+        PlaceOrderCommand = new RelayCommand<bool>(async paidCash => await PlaceOrderAsync(paidCash));
+        TaxPercentageClickCommand = new RelayCommand(async () => await UpdateTaxPercentageAsync(settingsViewModel));
+
+        WeakReferenceMessenger.Default.Register<NameChangedMessage>(this, (recipient, message) =>
         {
-            if (_isInitialized)
-                return;
+            Name = message.Name;
+        });
 
-            _isInitialized = true;
-            IsLoading = true;
+        TaxPercentage = settingsViewModel.GetTaxPercentage();
+    }
 
-            Categories = (await _apiService.GetMenuCategoriesAsync()).ToArray();
+    public async Task InitializeAsync()
+    {
+        await LoadItemsAsync();
+    }
 
-            if (Categories.Length > 0)
+    private async Task LoadItemsAsync()
+    {
+        IsLoading = true;
+        try
+        {
+            var categories = await _dbService.GetMenuCategoriesAsync();
+            Categories.Clear();
+            foreach (var category in categories)
             {
-                Categories[0].IsSelected = true;
-                SelectedCategory = Categories[0];
-                MenuItems = await _apiService.GetMenuItemsByCategoryIdAsync(SelectedCategory.Id);
+                Categories.Add(category);
             }
 
+            if (Categories.Any())
+            {
+                SelectedCategory = Categories.First();
+                await LoadMenuItemsAsync();
+            }
+        }
+        finally
+        {
             IsLoading = false;
         }
+    }
 
-        [RelayCommand]
-        private async Task SelectCategoryAsync(int categoryId)
+    private async Task LoadMenuItemsAsync()
+    {
+        if (SelectedCategory == null) return;
+        IsLoading = true;
+        try
         {
-            if (SelectedCategory?.Id == categoryId)
-                return;
-
-            IsLoading = true;
-
-            var currentSelectedCategory = Categories.First(c => c.IsSelected);
-            currentSelectedCategory.IsSelected = false;
-
-            var newSelectedCategory = Categories.First(c => c.Id == categoryId);
-            newSelectedCategory.IsSelected = true;
-
-            SelectedCategory = newSelectedCategory;
-            MenuItems = await _apiService.GetMenuItemsByCategoryIdAsync(SelectedCategory.Id);
-
+            var items = await _dbService.GetMenuItemsByCategoryIdAsync(SelectedCategory.Id);
+            MenuItems.Clear();
+            foreach (var item in items)
+            {
+                item.SelectedCategories = await _dbService.GetCategoriesByMenuItemIdAsync(item.Id);
+                MenuItems.Add(item);
+            }
+        }
+        finally
+        {
             IsLoading = false;
         }
+    }
 
-        [RelayCommand]
-        private void AddToCart(MenuItem menuItem)
-        {
-            var cartItem = CartItems.FirstOrDefault(c => c.ItemId == menuItem.Id);
-            if (cartItem == null)
-            {
-                cartItem = new CartModel()
-                {
-                    ItemId = menuItem.Id,
-                    Name = menuItem.Name,
-                    Price = menuItem.Price,
-                    Icon = menuItem.Icon,
-                    Quantity = 1
-                };
-                CartItems.Add(cartItem);
-            }
-            else
-            {
-                cartItem.Quantity++;
-                RecalculateAmounts();
-            }
-        }
+    private void SelectCategory(MenuCategoryModel? category)
+    {
+        if (category == null) return;
+        SelectedCategory = category;
+        Task.Run(LoadMenuItemsAsync);
+    }
 
-        [RelayCommand]
-        private void IncreaseQuantity(CartModel cartItem)
+    private void AddToCart(MenuItemModel? item)
+    {
+        if (item == null) return;
+        var cartItem = CartItems.FirstOrDefault(c => c.ItemId == item.Id);
+        if (cartItem != null)
         {
             cartItem.Quantity++;
-            RecalculateAmounts();
         }
-
-        [RelayCommand]
-        private void DecreaseQuantity(CartModel cartItem)
+        else
         {
-            cartItem.Quantity--;
-            if (cartItem.Quantity == 0)
+            cartItem = new CartModel
             {
-                CartItems.Remove(cartItem);
+                ItemId = item.Id,
+                Name = item.Name ?? string.Empty,
+                Icon = item.Icon ?? string.Empty,
+                Price = item.Price,
+                Quantity = 1
+            };
+            CartItems.Add(cartItem);
+        }
+        UpdateCartTotals();
+    }
+
+    private void DecreaseQuantity(CartModel? item)
+    {
+        if (item == null) return;
+        if (item.Quantity > 1)
+        {
+            item.Quantity--;
+            UpdateCartTotals();
+        }
+        else
+        {
+            CartItems.Remove(item);
+            UpdateCartTotals();
+        }
+    }
+
+    private void IncreaseQuantity(CartModel? item)
+    {
+        if (item == null) return;
+        item.Quantity++;
+        UpdateCartTotals();
+    }
+
+    private void RemoveItemFromCart(CartModel? item)
+    {
+        if (item == null) return;
+        CartItems.Remove(item);
+        UpdateCartTotals();
+    }
+
+    private void ClearCart()
+    {
+        CartItems.Clear();
+        UpdateCartTotals();
+    }
+
+    private async Task PlaceOrderAsync(bool isPaidCash)
+    {
+        if (!CartItems.Any()) return;
+
+        IsLoading = true;
+        try
+        {
+            var success = await _ordersViewModel.PlaceOrderAsync(CartItems.ToList(), isPaidCash);
+            if (success)
+            {
+                CartItems.Clear();
+                UpdateCartTotals();
+                if (App.Current?.MainPage != null)
+                {
+                    await App.Current.MainPage.DisplayAlert("Success", "Order placed successfully!", "OK");
+                }
             }
             else
             {
-                RecalculateAmounts();
+                if (App.Current?.MainPage != null)
+                {
+                    await App.Current.MainPage.DisplayAlert("Error", "Failed to place order.", "OK");
+                }
             }
         }
-
-        [RelayCommand]
-        private void RemoveItemFromCart(CartModel cartItem) => CartItems.Remove(cartItem);
-
-        private void RecalculateAmounts() => Subtotal = CartItems.Sum(i => i.Amount);
-
-        [RelayCommand]
-        private async Task TaxPercentageClickAsync()
+        finally
         {
-            var result = await Shell.Current.DisplayPromptAsync("Tax Percentage", "Enter tax percentage", placeholder: "10", initialValue: TaxPrecentage.ToString());
-            if (!string.IsNullOrWhiteSpace(result))
-            {
-                if (!int.TryParse(result, out int enteredTaxPercentage))
-                {
-                    await Shell.Current.DisplayAlert("Invalid value", "Please enter a valid number", "OK");
-                    return;
-                }
-
-                if (enteredTaxPercentage > 100 || enteredTaxPercentage < 0)
-                {
-                    await Shell.Current.DisplayAlert("Invalid value", "Tax percentage must be between 0 and 100", "OK");
-                    return;
-                }
-
-                TaxPrecentage = enteredTaxPercentage;
-                _settingsViewModel.SetTaxPercentage(enteredTaxPercentage);
-            }
+            IsLoading = false;
         }
+    }
 
-        [RelayCommand]
-        private async Task ClearCartAsync()
+    private async Task UpdateTaxPercentageAsync(SettingsViewModel settingsViewModel)
+    {
+        if (App.Current?.MainPage == null) return;
+
+        var newTax = await App.Current.MainPage.DisplayPromptAsync("Tax Percentage", "Enter new tax percentage:", "OK", "Cancel", TaxPercentage.ToString(), keyboard: Keyboard.Numeric);
+        if (int.TryParse(newTax, out int taxPercentage) && taxPercentage >= 0)
         {
-            if (CartItems.Count > 0)
-            {
-                if (await Shell.Current.DisplayAlert("Clear Order", "Are you sure you want to clear the order?", "Yes", "No"))
-                {
-                    CartItems.Clear();
-                }
-            }
+            settingsViewModel.SetTaxPercentage(taxPercentage);
+            TaxPercentage = taxPercentage;
         }
+    }
 
-        [RelayCommand]
-        private async Task PlaceOrderAsync(bool isPaidCash)
-        {
-            if (CartItems.Count == 0)
-                return;
+    private void UpdateCartTotals()
+    {
+        Subtotal = CartItems.Sum(c => c.Amount);
+        UpdateTaxAndTotal();
+    }
 
-            if (await Shell.Current.DisplayAlert("Close Order", "Are you sure you want to close the order?", "Yes", "No"))
-            {
-                IsLoading = true;
-
-                if (await _ordersViewModel.PlaceOrderAsync(CartItems.ToList(), isPaidCash))
-                {
-                    CartItems.Clear();
-                }
-
-                IsLoading = false;
-            }
-        }
-
-        public void Receive(MenuItemChangedMessage message)
-        {
-            var model = message.Value;
-            var menuItem = MenuItems.FirstOrDefault(m => m.Id == model.Id);
-            if (menuItem != null)
-            {
-                if (!model.SelectedCategories.Any(c => c.Id == SelectedCategory?.Id))
-                {
-                    MenuItems = [.. MenuItems.Where(m => m.Id != model.Id)];
-                    return;
-                }
-
-                menuItem.Name = model.Name;
-                menuItem.Price = model.Price;
-                menuItem.Description = model.Description;
-                menuItem.Icon = model.Icon;
-
-                MenuItems = [.. MenuItems];
-            }
-            else if (model.SelectedCategories.Any(c => c.Id == SelectedCategory?.Id))
-            {
-                var newMenuItem = new MenuItem
-                {
-                    Id = model.Id,
-                    Name = model.Name,
-                    Price = model.Price,
-                    Description = model.Description,
-                    Icon = model.Icon
-                };
-
-                MenuItems = [.. MenuItems, newMenuItem];
-            }
-
-            var cartItem = CartItems.FirstOrDefault(i => i.ItemId == model.Id);
-            if (cartItem != null)
-            {
-                cartItem.Name = model.Name;
-                cartItem.Price = model.Price;
-                cartItem.Icon = model.Icon;
-
-                var itemIndex = CartItems.IndexOf(cartItem);
-                CartItems[itemIndex] = cartItem;
-            }
-        }
+    private void UpdateTaxAndTotal()
+    {
+        TaxAmount = Subtotal * (TaxPercentage / 100m);
+        Total = Subtotal + TaxAmount;
     }
 }

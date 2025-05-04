@@ -1,36 +1,30 @@
-using System.Windows.Input;
 using FMMSRestaurant.Models;
 
-namespace FMMSRestaurant.Controls
+namespace FMMSRestaurant.Controls;
+
+public partial class CategoriesListControl : HorizontalStackLayout
 {
-    public partial class CategoriesListControl : ContentView
+    public static readonly BindableProperty CategoriesProperty =
+        BindableProperty.Create(nameof(Categories), typeof(IEnumerable<MenuCategoryModel>), typeof(CategoriesListControl), null);
+
+    public IEnumerable<MenuCategoryModel> Categories
     {
-        public CategoriesListControl()
+        get => (IEnumerable<MenuCategoryModel>)GetValue(CategoriesProperty);
+        set => SetValue(CategoriesProperty, value);
+    }
+
+    public event EventHandler<MenuCategoryModel>? OnCategorySelected;
+
+    public CategoriesListControl()
+    {
+        InitializeComponent();
+    }
+
+    private void OnCategoryTapped(object sender, EventArgs e)
+    {
+        if (sender is Label label && label.BindingContext is MenuCategoryModel category)
         {
-            InitializeComponent();
+            OnCategorySelected?.Invoke(this, category);
         }
-
-        public static readonly BindableProperty CategoriesProperty = BindableProperty.Create(
-            nameof(Categories),
-            typeof(MenuCategoryModel[]),
-            typeof(CategoriesListControl),
-            Array.Empty<MenuCategoryModel>()
-        );
-
-        public MenuCategoryModel[] Categories
-        {
-            get => (MenuCategoryModel[])GetValue(CategoriesProperty);
-            set => SetValue(CategoriesProperty, value);
-        }
-
-        public event Action<MenuCategoryModel>? OnCategorySelected;
-
-        public ICommand SelectCategoryCommand => new Command<object>(parameter =>
-        {
-            if (parameter is MenuCategoryModel category)
-            {
-                OnCategorySelected?.Invoke(category);
-            }
-        });
     }
 }

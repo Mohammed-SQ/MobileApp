@@ -1,12 +1,15 @@
-﻿namespace FMMSRestaurant;
+﻿using Microsoft.Extensions.DependencyInjection;
+
+namespace FMMSRestaurant;
 
 public partial class App : Application
 {
-    public App()
+    private readonly IServiceProvider _serviceProvider;
+
+    public App(IServiceProvider serviceProvider)
     {
         InitializeComponent();
-
-        // Set the main page of the app to the Shell
-        MainPage = new AppShell();
+        _serviceProvider = serviceProvider;
+        MainPage = _serviceProvider.GetRequiredService<MainPage>();
     }
 }

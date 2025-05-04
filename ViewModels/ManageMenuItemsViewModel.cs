@@ -1,190 +1,162 @@
-﻿using CommunityToolkit.Maui.Alerts;
+﻿using System.Collections.ObjectModel;
+using System.Threading.Tasks;
+using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using CommunityToolkit.Mvvm.Messaging;
 using FMMSRestaurant.Models;
 using FMMSRestaurant.Services;
-using MenuItem = FMMSRestaurant.Models.MenuItemModel;
 
-namespace FMMSRestaurant.ViewModels
+namespace FMMSRestaurant.ViewModels;
+
+public partial class ManageMenuItemsViewModel : ObservableObject
 {
-    public partial class ManageMenuItemsViewModel : ObservableObject
+    private readonly CloudDatabaseService _dbService;
+
+    private ObservableCollection<MenuItemModel> _menuItems = new();
+    public ObservableCollection<MenuItemModel> MenuItems
     {
-        private readonly ApiService _apiService;
+        get => _menuItems;
+        set => SetProperty(ref _menuItems, value);
+    }
 
-        public ManageMenuItemsViewModel(ApiService apiService)
+    private ObservableCollection<MenuCategoryModel> _categories = new();
+    public ObservableCollection<MenuCategoryModel> Categories
+    {
+        get => _categories;
+        set => SetProperty(ref _categories, value);
+    }
+
+    private MenuCategoryModel? _selectedCategory;
+    public MenuCategoryModel? SelectedCategory
+    {
+        get => _selectedCategory;
+        set => SetProperty(ref _selectedCategory, value);
+    }
+
+    private MenuItemModel? _selectedItem;
+    public MenuItemModel? SelectedItem
+    {
+        get => _selectedItem;
+        set => SetProperty(ref _selectedItem, value);
+    }
+
+    public ICommand AddCommand { get; }
+    public ICommand EditMenuItemCommand { get; }
+    public ICommand DeleteCommand { get; }
+    public ICommand SelectCategoryCommand { get; }
+    public ICommand SaveMenuItemCommand { get; }
+    public ICommand CancelCommand { get; }
+
+    public ManageMenuItemsViewModel(CloudDatabaseService dbService)
+    {
+        _dbService = dbService;
+        AddCommand = new RelayCommand(AddItem);
+        EditMenuItemCommand = new RelayCommand(EditItem, CanEdit);
+        DeleteCommand = new RelayCommand(DeleteItem, CanDelete);
+        SelectCategoryCommand = new RelayCommand<MenuCategoryModel>(SelectCategory);
+        SaveMenuItemCommand = new RelayCommand(SaveMenuItemAsync, CanSave);
+        CancelCommand = new RelayCommand(Cancel);
+    }
+
+    public async Task InitializeAsync()
+    {
+        await LoadCategoriesAsync();
+        await LoadMenuItemsAsync();
+    }
+
+    private async Task LoadCategoriesAsync()
+    {
+        var categories = await _dbService.GetMenuCategoriesAsync();
+        Categories.Clear();
+        foreach (var category in categories)
         {
-            _apiService = apiService;
+            Categories.Add(category);
         }
+        SelectedCategory = Categories.FirstOrDefault();
+    }
 
-        [ObservableProperty]
-        private MenuCategoryModel[] _categories = [];
-
-        [ObservableProperty]
-        private MenuItem[] _menuItems = [];
-
-        [ObservableProperty]
-        private MenuCategoryModel? _selectedCategory = null;
-
-        [ObservableProperty]
-        private bool _isLoading;
-
-        [ObservableProperty]
-        private MenuItemModel _menuItem = new();
-
-        private bool _isInitialized;
-
-        public async ValueTask InitializeAsync()
+    private async Task LoadMenuItemsAsync()
+    {
+        if (SelectedCategory == null) return;
+        var items = await _dbService.GetMenuItemsByCategoryIdAsync(SelectedCategory.Id);
+        MenuItems.Clear();
+        foreach (var item in items)
         {
-            if (_isInitialized)
-                return;
-
-            _isInitialized = true;
-            IsLoading = true;
-
-            Categories = (await _apiService.GetMenuCategoriesAsync()).ToArray();
-
-            if (Categories.Length > 0)
-            {
-                Categories[0].IsSelected = true;
-                SelectedCategory = Categories[0];
-                MenuItems = await _apiService.GetMenuItemsByCategoryIdAsync(SelectedCategory.Id);
-            }
-
-            SetEmptyCategoriesToItem();
-            IsLoading = false;
+            item.SelectedCategories = await _dbService.GetCategoriesByMenuItemIdAsync(item.Id);
+            MenuItems.Add(item);
         }
+    }
 
-        [RelayCommand]
-        private async Task SelectCategoryAsync(int categoryId)
+    private void AddItem()
+    {
+        var newItem = new MenuItemModel();
+        MenuItems.Add(newItem);
+        SelectedItem = newItem;
+    }
+
+    private bool CanEdit()
+    {
+        return SelectedItem != null;
+    }
+
+    private void EditItem()
+    {
+        if (SelectedItem != null)
         {
-            if (SelectedCategory?.Id == categoryId)
-                return;
-
-            IsLoading = true;
-
-            var currentSelectedCategory = Categories.FirstOrDefault(c => c.IsSelected);
-            if (currentSelectedCategory != null)
-                currentSelectedCategory.IsSelected = false;
-
-            var newSelectedCategory = Categories.FirstOrDefault(c => c.Id == categoryId);
-            if (newSelectedCategory != null)
-            {
-                newSelectedCategory.IsSelected = true;
-                SelectedCategory = newSelectedCategory;
-                MenuItems = await _apiService.GetMenuItemsByCategoryIdAsync(SelectedCategory.Id);
-            }
-
-            IsLoading = false;
+            // Edit logic here
         }
+    }
 
-        [RelayCommand]
-        private async Task EditMenuItemAsync(MenuItem menuItem)
+    private bool CanDelete()
+    {
+        return SelectedItem != null;
+    }
+
+    private void DeleteItem()
+    {
+        if (SelectedItem != null)
         {
-            var menuItemModel = new MenuItemModel
-            {
-                Id = menuItem.Id,
-                Name = menuItem.Name,
-                Description = menuItem.Description,
-                Price = menuItem.Price,
-                Icon = menuItem.Icon
-            };
+            MenuItems.Remove(SelectedItem);
+            SelectedItem = null;
+        }
+    }
 
-            var itemCategories = await _apiService.GetCategoriesByMenuItemIdAsync(menuItem.Id);
+    private void SelectCategory(MenuCategoryModel? category)
+    {
+        if (category != null)
+        {
+            SelectedCategory = category;
+            Task.Run(LoadMenuItemsAsync);
+        }
+    }
 
-            foreach (var category in Categories)
+    private bool CanSave()
+    {
+        return SelectedItem != null;
+    }
+
+    private async void SaveMenuItemAsync()
+    {
+        if (SelectedItem != null)
+        {
+            var result = await _dbService.SaveMenuItemAsync(SelectedItem);
+            if (result != null)
             {
-                var categoryOfItem = new MenuCategoryModel
+                // Handle error with null check
+                if (App.Current?.MainPage != null)
                 {
-                    Icon = category.Icon,
-                    Id = category.Id,
-                    Name = category.Name,
-                    IsSelected = itemCategories.Any(c => c.Id == category.Id)
-                };
-                menuItemModel.Categories.Add(categoryOfItem);
-            }
-
-            MenuItem = menuItemModel;
-        }
-
-        private void SetEmptyCategoriesToItem()
-        {
-            MenuItem.Categories.Clear();
-            foreach (var category in Categories)
-            {
-                var categoryOfItem = new MenuCategoryModel
-                {
-                    Id = category.Id,
-                    Icon = category.Icon,
-                    Name = category.Name,
-                    IsSelected = false
-                };
-                MenuItem.Categories.Add(categoryOfItem);
-            }
-        }
-
-        [RelayCommand]
-        private void Cancel()
-        {
-            MenuItem = new();
-            SetEmptyCategoriesToItem();
-        }
-
-        [RelayCommand]
-        private async Task SaveMenuItemAsync(MenuItemModel model)
-        {
-            IsLoading = true;
-
-            var errorMessage = await _apiService.SaveMenuItemAsync(model);
-            if (errorMessage != null)
-            {
-                await Shell.Current.DisplayAlert("Error", errorMessage, "OK");
+                    await App.Current.MainPage.DisplayAlert("Error", result, "OK");
+                }
             }
             else
             {
-                await Toast.Make("Menu item saved successfully").Show();
-                HandleMenuItemChanged(model);
-                WeakReferenceMessenger.Default.Send(MenuItemChangedMessage.From(model));
-                Cancel();
-            }
-
-            IsLoading = false;
-        }
-
-        private void HandleMenuItemChanged(MenuItemModel model)
-        {
-            if (SelectedCategory == null)
-                return;
-
-            var menuItem = MenuItems.FirstOrDefault(m => m.Id == model.Id);
-            if (menuItem != null)
-            {
-                if (!model.SelectedCategories.Any(c => c.Id == SelectedCategory.Id))
-                {
-                    MenuItems = [.. MenuItems.Where(m => m.Id != model.Id)];
-                    return;
-                }
-
-                menuItem.Name = model.Name;
-                menuItem.Price = model.Price;
-                menuItem.Description = model.Description;
-                menuItem.Icon = model.Icon;
-
-                MenuItems = [.. MenuItems];
-            }
-            else if (model.SelectedCategories.Any(c => c.Id == SelectedCategory.Id))
-            {
-                var newMenuItem = new MenuItem
-                {
-                    Id = model.Id,
-                    Name = model.Name,
-                    Price = model.Price,
-                    Description = model.Description,
-                    Icon = model.Icon
-                };
-
-                MenuItems = [.. MenuItems, newMenuItem];
+                await LoadMenuItemsAsync();
             }
         }
+    }
+
+    private void Cancel()
+    {
+        SelectedItem = null;
     }
 }
