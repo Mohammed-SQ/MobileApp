@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <Shell
-    x:Class="RestaurantPOS.AppShell"
+    x:Class="FMMSRestaurant.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:local="clr-namespace:RestaurantPOS"
-    xmlns:pages="clr-namespace:RestaurantPOS.Pages"
+    xmlns:local="clr-namespace:FMMSRestaurant"
+    xmlns:pages="clr-namespace:FMMSRestaurant.Pages"
     Title="Restaurant POS"
     Shell.FlyoutBackgroundColor="Wheat"
     Shell.FlyoutBehavior="Locked"

@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
-using RestaurantPOS.Models;
+using FMMSRestaurant.Models;
 
-namespace RestaurantPOS.ViewModels
+namespace FMMSRestaurant.ViewModels
 {
     public class SettingsViewModel
     {

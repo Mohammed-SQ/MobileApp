@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage
-    x:Class="RestaurantPOS.Pages.OrdersPage"
+    x:Class="FMMSRestaurant.Pages.OrdersPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:controls="clr-namespace:RestaurantPOS.Controls"
-    xmlns:data="clr-namespace:RestaurantPOS.Data"
-    xmlns:models="clr-namespace:RestaurantPOS.Models"
-    xmlns:vm="clr-namespace:RestaurantPOS.ViewModels"
+    xmlns:controls="clr-namespace:FMMSRestaurant.Controls"
+    xmlns:models="clr-namespace:FMMSRestaurant.Models"
+    xmlns:vm="clr-namespace:FMMSRestaurant.ViewModels"
     x:DataType="vm:OrdersViewModel"
     Shell.NavBarIsVisible="False">
 
@@ -31,13 +30,11 @@
             Padding="15"
             RowDefinitions="Auto, *"
             RowSpacing="15">
-
             <Label
                 Grid.Row="0"
                 FontAttributes="Bold"
                 FontSize="22"
                 Text="Orders" />
-
             <Grid Grid.Row="1">
                 <Grid RowDefinitions="30, *">
                     <Grid BackgroundColor="Maroon" ColumnDefinitions="90, *, *, *, *,*">
@@ -130,7 +127,6 @@
                                         Grid.ColumnSpan="6"
                                         HeightRequest="1"
                                         Color="LightGray" />
-
                                     <Grid.GestureRecognizers>
                                         <TapGestureRecognizer Command="{Binding Source={x:RelativeSource AncestorType={x:Type vm:OrdersViewModel}}, Path=SelectOrderCommand}" CommandParameter="{Binding .}" />
                                     </Grid.GestureRecognizers>
@@ -139,14 +135,12 @@
                         </CollectionView.ItemTemplate>
                     </CollectionView>
                 </Grid>
-
                 <BoxView
                     HorizontalOptions="Fill"
                     IsVisible="{Binding IsLoading}"
                     Opacity="0.5"
                     VerticalOptions="Fill"
                     Color="{StaticResource LightWeat}" />
-
                 <ActivityIndicator
                     HeightRequest="25"
                     HorizontalOptions="Center"
@@ -191,7 +185,7 @@
                         <LinearItemsLayout ItemSpacing="2" Orientation="Vertical" />
                     </CollectionView.ItemsLayout>
                     <CollectionView.ItemTemplate>
-                        <DataTemplate x:DataType="data:OrderItem">
+                        <DataTemplate x:DataType="models:OrderItemModel">
                             <Grid>
                                 <Border Padding="5" BackgroundColor="{StaticResource LightWeat}">
                                     <Border.StrokeShape>
@@ -239,8 +233,6 @@
                                                     HorizontalOptions="End"
                                                     Text="{Binding Amount, StringFormat='{0:C}'}"
                                                     TextColor="Maroon" />
-
-
                                             </Grid>
                                         </VerticalStackLayout>
                                     </Grid>

@@ -1,6 +1,6 @@
 using CommunityToolkit.Maui.Views;
 
-namespace RestaurantPOS.Controls;
+namespace FMMSRestaurant.Controls;
 
 public partial class HelpPopup : Popup
 {

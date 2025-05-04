@@ -2,19 +2,19 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using RestaurantPOS.Data;
-using RestaurantPOS.Models;
-using MenuItem = RestaurantPOS.Data.MenuItem;
+using FMMSRestaurant.Models;
+using FMMSRestaurant.Services;
+using MenuItem = FMMSRestaurant.Models.MenuItemModel;
 
-namespace RestaurantPOS.ViewModels
+namespace FMMSRestaurant.ViewModels
 {
     public partial class ManageMenuItemsViewModel : ObservableObject
     {
-        private readonly DatabaseService _databaseService;
+        private readonly ApiService _apiService;
 
-        public ManageMenuItemsViewModel(DatabaseService databaseService)
+        public ManageMenuItemsViewModel(ApiService apiService)
         {
-            _databaseService = databaseService;
+            _apiService = apiService;
         }
 
         [ObservableProperty]
@@ -37,25 +37,21 @@ namespace RestaurantPOS.ViewModels
         public async ValueTask InitializeAsync()
         {
             if (_isInitialized)
-            {
                 return;
-            }
 
             _isInitialized = true;
-
             IsLoading = true;
 
-            Categories = (await _databaseService.GetMenuCategoriesAsync())
-                            .Select(MenuCategoryModel.FromEntity)
-                            .ToArray();
+            Categories = (await _apiService.GetMenuCategoriesAsync()).ToArray();
 
-            Categories[0].IsSelected = true;
-            SelectedCategory = Categories[0];
-
-            MenuItems = await _databaseService.GetMenuItemsByCategoryIdAsync(SelectedCategory.Id);
+            if (Categories.Length > 0)
+            {
+                Categories[0].IsSelected = true;
+                SelectedCategory = Categories[0];
+                MenuItems = await _apiService.GetMenuItemsByCategoryIdAsync(SelectedCategory.Id);
+            }
 
             SetEmptyCategoriesToItem();
-
             IsLoading = false;
         }
 
@@ -63,7 +59,7 @@ namespace RestaurantPOS.ViewModels
         private async Task SelectCategoryAsync(int categoryId)
         {
             if (SelectedCategory?.Id == categoryId)
-                return; // Already selected
+                return;
 
             IsLoading = true;
 
@@ -74,9 +70,7 @@ namespace RestaurantPOS.ViewModels
             newSelectedCategory.IsSelected = true;
 
             SelectedCategory = newSelectedCategory;
-
-            MenuItems = await _databaseService.GetMenuItemsByCategoryIdAsync(SelectedCategory.Id);
-
+            MenuItems = await _apiService.GetMenuItemsByCategoryIdAsync(SelectedCategory.Id);
             IsLoading = false;
         }
 
@@ -92,7 +86,7 @@ namespace RestaurantPOS.ViewModels
                 Icon = menuItem.Icon
             };
 
-            var itemCategories = await _databaseService.GetCategoriesByMenuItemIdAsync(menuItem.Id);
+            var itemCategories = await _apiService.GetCategoriesByMenuItemIdAsync(menuItem.Id);
 
             foreach (var category in Categories)
             {
@@ -100,18 +94,12 @@ namespace RestaurantPOS.ViewModels
                 {
                     Icon = category.Icon,
                     Id = category.Id,
-                    Name = category.Name
+                    Name = category.Name,
+                    IsSelected = itemCategories.Any(c => c.Id == category.Id)
                 };
-                if (itemCategories.Any(c => c.Id == category.Id))
-                {
-                    categoryOfItem.IsSelected = true;
-                }
-                else
-                {
-                    categoryOfItem.IsSelected = false;
-                }
                 menuItemModel.Categories.Add(categoryOfItem);
             }
+
             MenuItem = menuItemModel;
         }
 
@@ -143,7 +131,7 @@ namespace RestaurantPOS.ViewModels
         {
             IsLoading = true;
 
-            var errorMessage = await _databaseService.SaveMenuItemAsync(model);
+            var errorMessage = await _apiService.SaveMenuItemAsync(model);
             if (errorMessage != null)
             {
                 await Shell.Current.DisplayAlert("Error", errorMessage, "OK");
@@ -155,6 +143,7 @@ namespace RestaurantPOS.ViewModels
                 WeakReferenceMessenger.Default.Send(MenuItemChangedMessage.From(model));
                 Cancel();
             }
+
             IsLoading = false;
         }
 
@@ -163,7 +152,6 @@ namespace RestaurantPOS.ViewModels
             var menuItem = MenuItems.FirstOrDefault(m => m.Id == model.Id);
             if (menuItem != null)
             {
-
                 if (!model.SelectedCategories.Any(c => c.Id == SelectedCategory.Id))
                 {
                     MenuItems = [.. MenuItems.Where(m => m.Id != model.Id)];

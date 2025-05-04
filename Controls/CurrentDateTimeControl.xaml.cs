@@ -1,4 +1,4 @@
-namespace RestaurantPOS.Controls;
+namespace FMMSRestaurant.Controls;
 
 public partial class CurrentDateTimeControl : ContentView
 {

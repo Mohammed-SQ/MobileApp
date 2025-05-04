@@ -1,16 +1,16 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using RestaurantPOS.Data;
-using RestaurantPOS.Models;
+using FMMSRestaurant.Models;
+using FMMSRestaurant.Services;
 using System.Collections.ObjectModel;
-using MenuItem = RestaurantPOS.Data.MenuItem;
+using MenuItem = FMMSRestaurant.Models.MenuItemModel;
 
-namespace RestaurantPOS.ViewModels
+namespace FMMSRestaurant.ViewModels
 {
     public partial class HomeViewModel : ObservableObject, IRecipient<MenuItemChangedMessage>
     {
-        private readonly DatabaseService _databaseService;
+        private readonly ApiService _apiService;
         private readonly OrdersViewModel _ordersViewModel;
         private readonly SettingsViewModel _settingsViewModel;
 
@@ -35,22 +35,21 @@ namespace RestaurantPOS.ViewModels
         private int _taxPrecentage;
 
         public decimal TaxAmount => (Subtotal * TaxPrecentage) / 100;
-
         public decimal Total => Subtotal + TaxAmount;
 
         [ObservableProperty]
         private string _name = "Guest";
 
-        public HomeViewModel(DatabaseService databaseService, OrdersViewModel ordersViewModel, SettingsViewModel settingsViewModel)
+        public HomeViewModel(ApiService apiService, OrdersViewModel ordersViewModel, SettingsViewModel settingsViewModel)
         {
-            _databaseService = databaseService;
+            _apiService = apiService;
             _ordersViewModel = ordersViewModel;
             _settingsViewModel = settingsViewModel;
 
             CartItems.CollectionChanged += (sender, args) => RecalculateAmounts();
 
             WeakReferenceMessenger.Default.Register<MenuItemChangedMessage>(this);
-            WeakReferenceMessenger.Default.Register<NameChangedMessage>(this, (reciepent, message) => Name = message.Value);
+            WeakReferenceMessenger.Default.Register<NameChangedMessage>(this, (recipient, message) => Name = message.Value);
 
             TaxPrecentage = _settingsViewModel.GetTaxPercentage();
         }
@@ -60,22 +59,19 @@ namespace RestaurantPOS.ViewModels
         public async ValueTask InitializeAsync()
         {
             if (_isInitialized)
-            {
                 return;
-            }
 
             _isInitialized = true;
-
             IsLoading = true;
 
-            Categories = (await _databaseService.GetMenuCategoriesAsync())
-                            .Select(MenuCategoryModel.FromEntity)
-                            .ToArray();
+            Categories = (await _apiService.GetMenuCategoriesAsync()).ToArray();
 
-            Categories[0].IsSelected = true;
-            SelectedCategory = Categories[0];
-
-            MenuItems = await _databaseService.GetMenuItemsByCategoryIdAsync(SelectedCategory.Id);
+            if (Categories.Length > 0)
+            {
+                Categories[0].IsSelected = true;
+                SelectedCategory = Categories[0];
+                MenuItems = await _apiService.GetMenuItemsByCategoryIdAsync(SelectedCategory.Id);
+            }
 
             IsLoading = false;
         }
@@ -84,7 +80,7 @@ namespace RestaurantPOS.ViewModels
         private async Task SelectCategoryAsync(int categoryId)
         {
             if (SelectedCategory?.Id == categoryId)
-                return; // Already selected
+                return;
 
             IsLoading = true;
 
@@ -95,8 +91,7 @@ namespace RestaurantPOS.ViewModels
             newSelectedCategory.IsSelected = true;
 
             SelectedCategory = newSelectedCategory;
-
-            MenuItems = await _databaseService.GetMenuItemsByCategoryIdAsync(SelectedCategory.Id);
+            MenuItems = await _apiService.GetMenuItemsByCategoryIdAsync(SelectedCategory.Id);
 
             IsLoading = false;
         }
@@ -169,7 +164,6 @@ namespace RestaurantPOS.ViewModels
                 }
 
                 TaxPrecentage = enteredTaxPercentage;
-
                 _settingsViewModel.SetTaxPercentage(enteredTaxPercentage);
             }
         }
@@ -190,17 +184,17 @@ namespace RestaurantPOS.ViewModels
         private async Task PlaceOrderAsync(bool isPaidCash)
         {
             if (CartItems.Count == 0)
-            {
                 return;
-            }
 
             if (await Shell.Current.DisplayAlert("Close Order", "Are you sure you want to close the order?", "Yes", "No"))
             {
                 IsLoading = true;
-                if (await _ordersViewModel.CreateOderAsync([.. CartItems], isPaidCash))
+
+                if (await _ordersViewModel.PlaceOrderAsync(CartItems.ToList(), isPaidCash))
                 {
                     CartItems.Clear();
                 }
+
                 IsLoading = false;
             }
         }
@@ -211,8 +205,7 @@ namespace RestaurantPOS.ViewModels
             var menuItem = MenuItems.FirstOrDefault(m => m.Id == model.Id);
             if (menuItem != null)
             {
-
-                if (!model.SelectedCategories.Any(c => c.Id == SelectedCategory.Id))
+                if (!model.SelectedCategories.Any(c => c.Id == SelectedCategory?.Id))
                 {
                     MenuItems = [.. MenuItems.Where(m => m.Id != model.Id)];
                     return;
@@ -225,7 +218,7 @@ namespace RestaurantPOS.ViewModels
 
                 MenuItems = [.. MenuItems];
             }
-            else if (model.SelectedCategories.Any(c => c.Id == SelectedCategory.Id))
+            else if (model.SelectedCategories.Any(c => c.Id == SelectedCategory?.Id))
             {
                 var newMenuItem = new MenuItem
                 {
@@ -242,15 +235,12 @@ namespace RestaurantPOS.ViewModels
             var cartItem = CartItems.FirstOrDefault(i => i.ItemId == model.Id);
             if (cartItem != null)
             {
-
                 cartItem.Name = model.Name;
                 cartItem.Price = model.Price;
                 cartItem.Icon = model.Icon;
 
                 var itemIndex = CartItems.IndexOf(cartItem);
-
                 CartItems[itemIndex] = cartItem;
-
             }
         }
     }

@@ -1,7 +1,7 @@
 using CommunityToolkit.Mvvm.Input;
-using MenuItem = RestaurantPOS.Data.MenuItem;
+using MenuItem = FMMSRestaurant.Models.MenuItemModel;
 
-namespace RestaurantPOS.Controls;
+namespace FMMSRestaurant.Controls;
 
 public partial class MenuItemsListControl : ContentView
 {

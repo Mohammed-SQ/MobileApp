@@ -1,10 +1,9 @@
 ﻿using CommunityToolkit.Maui;
 using Microsoft.Extensions.Logging;
-using RestaurantPOS.Data;
-using RestaurantPOS.Pages;
-using RestaurantPOS.ViewModels;
+using FMMSRestaurant.Pages;
+using FMMSRestaurant.ViewModels;
 
-namespace RestaurantPOS
+namespace FMMSRestaurant
 {
     public static class MauiProgram
     {
@@ -25,10 +24,8 @@ namespace RestaurantPOS
 #endif
 
             builder.Services
-                .AddSingleton<DatabaseService>()
                 .AddSingleton<HomeViewModel>()
                 .AddSingleton<MainPage>()
-                .AddSingleton<OrdersViewModel>()
                 .AddSingleton<OrdersPage>()
                 .AddTransient<ManageMenuItemsViewModel>()
                 .AddTransient<ManageMenuItemPage>()

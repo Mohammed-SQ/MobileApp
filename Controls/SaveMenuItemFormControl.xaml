@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentView
-    x:Class="RestaurantPOS.Controls.SaveMenuItemFormControl"
+    x:Class="FMMSRestaurant.Controls.SaveMenuItemFormControl"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:controls="clr-namespace:RestaurantPOS.Controls"
-    xmlns:converters="clr-namespace:RestaurantPOS.Converters"
-    xmlns:models="clr-namespace:RestaurantPOS.Models"
+    xmlns:controls="clr-namespace:FMMSRestaurant.Controls"
+    xmlns:converters="clr-namespace:FMMSRestaurant.Converters"
+    xmlns:models="clr-namespace:FMMSRestaurant.Models"
     x:Name="this">
 
     <ContentView.Resources>

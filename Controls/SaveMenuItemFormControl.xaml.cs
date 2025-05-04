@@ -1,7 +1,8 @@
 using CommunityToolkit.Mvvm.Input;
-using RestaurantPOS.Models;
+using FMMSRestaurant.Models;
+using System.Linq;
 
-namespace RestaurantPOS.Controls;
+namespace FMMSRestaurant.Controls;
 
 public partial class SaveMenuItemFormControl : ContentView
 {
@@ -100,7 +101,7 @@ public partial class SaveMenuItemFormControl : ContentView
         control.itemIcon.WidthRequest = control.itemIcon.HeightRequest = size;
     }
 
-    public event Action<MenuItemModel> OnSaveItem;
+    public event Action<MenuItemModel>? OnSaveItem; // Fix: Made nullable with ?
 
     [RelayCommand]
     private async Task SaveMenuItemAsync()
@@ -111,7 +112,7 @@ public partial class SaveMenuItemFormControl : ContentView
             return;
         }
 
-        if (Item.SelectedCategories.Length == 0)
+        if (Item.SelectedCategories.Count() == 0)
         {
             await ErrorAlertAsync("Please select at least 1 category");
             return;
@@ -127,6 +128,4 @@ public partial class SaveMenuItemFormControl : ContentView
 
         static async Task ErrorAlertAsync(string message) => await Shell.Current.DisplayAlert("Validation Error", message, "OK");
     }
-
-
 }

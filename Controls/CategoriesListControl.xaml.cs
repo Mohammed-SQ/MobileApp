@@ -1,30 +1,36 @@
-using CommunityToolkit.Mvvm.Input;
-using RestaurantPOS.Models;
+using System.Windows.Input;
+using FMMSRestaurant.Models;
 
-namespace RestaurantPOS.Controls;
-
-public partial class CategoriesListControl : ContentView
+namespace FMMSRestaurant.Controls
 {
-    public CategoriesListControl()
+    public partial class CategoriesListControl : ContentView
     {
-        InitializeComponent();
+        public CategoriesListControl()
+        {
+            InitializeComponent();
+        }
+
+        public static readonly BindableProperty CategoriesProperty = BindableProperty.Create(
+            nameof(Categories),
+            typeof(MenuCategoryModel[]),
+            typeof(CategoriesListControl),
+            Array.Empty<MenuCategoryModel>()
+        );
+
+        public MenuCategoryModel[] Categories
+        {
+            get => (MenuCategoryModel[])GetValue(CategoriesProperty);
+            set => SetValue(CategoriesProperty, value);
+        }
+
+        public event Action<MenuCategoryModel>? OnCategorySelected;
+
+        public ICommand SelectCategoryCommand => new Command<object>(parameter =>
+        {
+            if (parameter is MenuCategoryModel category)
+            {
+                OnCategorySelected?.Invoke(category);
+            }
+        });
     }
-
-    public static readonly BindableProperty CategoriesProperty = BindableProperty.Create(
-        nameof(Categories),
-        typeof(MenuCategoryModel[]),
-        typeof(CategoriesListControl),
-        Array.Empty<MenuCategoryModel>()
-    );
-
-    public MenuCategoryModel[] Categories
-    {
-        get => (MenuCategoryModel[])GetValue(CategoriesProperty);
-        set => SetValue(CategoriesProperty, value);
-    }
-
-    public event Action<MenuCategoryModel> OnCategorySelected;
-
-    [RelayCommand]
-    private void SelectCategory(MenuCategoryModel category) => OnCategorySelected?.Invoke(category);
 }

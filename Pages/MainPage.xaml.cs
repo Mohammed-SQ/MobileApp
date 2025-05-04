@@ -1,7 +1,7 @@
-﻿using RestaurantPOS.ViewModels;
-using MenuItem = RestaurantPOS.Data.MenuItem;
+﻿using FMMSRestaurant.ViewModels;
+using MenuItem = FMMSRestaurant.Models.MenuItemModel;
 
-namespace RestaurantPOS.Pages
+namespace FMMSRestaurant.Pages
 {
     public partial class MainPage : ContentPage
     {

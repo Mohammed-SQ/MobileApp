@@ -1,27 +1,17 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 
-namespace RestaurantPOS.Models
+namespace FMMSRestaurant.Models
 {
-    public partial class MenuItemModel : ObservableObject
+    public class MenuItemModel
     {
-
         public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public decimal Price { get; set; }
+        public string Icon { get; set; } = string.Empty;
 
-        [ObservableProperty]
-        private string _name;
+        public ObservableCollection<MenuCategoryModel> Categories { get; set; } = new();
 
-        [ObservableProperty]
-        private decimal _price;
-
-        [ObservableProperty]
-        private string _icon;
-
-        [ObservableProperty]
-        private string _description;
-
-        public ObservableCollection<MenuCategoryModel> Categories { get; set; } = [];
-
-        public MenuCategoryModel[] SelectedCategories => Categories.Where(c => c.IsSelected).ToArray();
+        public IEnumerable<MenuCategoryModel> SelectedCategories => Categories.Where(c => c.IsSelected);
     }
 }

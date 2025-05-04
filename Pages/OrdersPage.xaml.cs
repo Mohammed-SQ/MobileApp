@@ -1,19 +1,21 @@
-using RestaurantPOS.ViewModels;
+using CommunityToolkit.Mvvm.ComponentModel;
+using System.Threading.Tasks;
 
-namespace RestaurantPOS.Pages;
-
-public partial class OrdersPage : ContentPage
+namespace FMMSRestaurant.ViewModels
 {
-    private readonly OrdersViewModel _ordersViewModel;
+    public partial class OrdersViewModel : ObservableObject
+    {
+        private bool _isInitialized;
 
-    public OrdersPage(OrdersViewModel ordersViewModel)
-	{
-		InitializeComponent();
-        _ordersViewModel = ordersViewModel;
-        BindingContext = _ordersViewModel;
-        InitializeViewModelAsync();
+        public async ValueTask InitializeAsync()
+        {
+            if (_isInitialized)
+                return;
+
+            _isInitialized = true;
+
+            // TODO: Load initial data here (e.g., list of orders)
+            await Task.CompletedTask;
+        }
     }
-
-    private async void InitializeViewModelAsync() => await _ordersViewModel.InitializeAsync();
-
 }

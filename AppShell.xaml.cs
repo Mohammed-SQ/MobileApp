@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Maui.Views;
-using RestaurantPOS.Controls;
+using FMMSRestaurant.Controls;
 
-namespace RestaurantPOS
+namespace FMMSRestaurant
 {
     public partial class AppShell : Shell
     {

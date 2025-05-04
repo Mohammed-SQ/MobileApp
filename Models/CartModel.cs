@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace RestaurantPOS.Models
+namespace FMMSRestaurant.Models
 {
     public partial class CartModel : ObservableObject
     {

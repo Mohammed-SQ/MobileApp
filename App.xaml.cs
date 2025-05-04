@@ -1,19 +1,11 @@
-﻿using RestaurantPOS.Data;
-
-namespace RestaurantPOS
+﻿namespace FMMSRestaurant
 {
     public partial class App : Application
     {
-
-        public App(DatabaseService databaseService)
+        public App()
         {
             InitializeComponent();
-
             MainPage = new AppShell();
-
-            Task.Run(async () => await databaseService.InitializeDatabase())
-                .GetAwaiter()
-                .GetResult();
         }
 
         protected override Window CreateWindow(IActivationState? activationState)
