@@ -14,12 +14,12 @@ public partial class SaveMenuItemFormControl : ContentView
     }
 
     public static readonly BindableProperty ItemProperty = BindableProperty.Create(
-       nameof(Item),
-       typeof(MenuItemModel),
-       typeof(SaveMenuItemFormControl),
-       new MenuItemModel(),
-       propertyChanged: OnItemChanged
-   );
+        nameof(Item),
+        typeof(MenuItemModel),
+        typeof(SaveMenuItemFormControl),
+        new MenuItemModel(),
+        propertyChanged: OnItemChanged
+    );
 
     public MenuItemModel Item
     {
@@ -36,7 +36,8 @@ public partial class SaveMenuItemFormControl : ContentView
         {
             if (bindable is SaveMenuItemFormControl thisControl)
             {
-                if (menuItemModel.Id > 0)
+                // Id is a string in the database, so parse it to check if it's a valid positive number
+                if (!string.IsNullOrEmpty(menuItemModel.Id) && int.TryParse(menuItemModel.Id, out int id) && id > 0)
                 {
                     thisControl.SetIconImage(isDefault: false, menuItemModel.Icon, thisControl);
                     thisControl.ExistingIcon = menuItemModel.Icon;
@@ -63,15 +64,12 @@ public partial class SaveMenuItemFormControl : ContentView
         if (fileResult != null)
         {
             var imageStream = await fileResult.OpenReadAsync();
-
             var localPath = Path.Combine(FileSystem.AppDataDirectory, fileResult.FileName);
 
             using var fs = new FileStream(localPath, FileMode.Create, FileAccess.Write);
-
             await imageStream.CopyToAsync(fs);
 
             SetIconImage(isDefault: false, localPath);
-
             Item.Icon = localPath;
         }
         else
@@ -101,7 +99,7 @@ public partial class SaveMenuItemFormControl : ContentView
         control.itemIcon.WidthRequest = control.itemIcon.HeightRequest = size;
     }
 
-    public event Action<MenuItemModel>? OnSaveItem; // Fix: Made nullable with ?
+    public event Action<MenuItemModel>? OnSaveItem;
 
     [RelayCommand]
     private async Task SaveMenuItemAsync()
@@ -112,7 +110,8 @@ public partial class SaveMenuItemFormControl : ContentView
             return;
         }
 
-        if (Item.SelectedCategories.Count() == 0)
+        // Check for null to avoid warning CS8604
+        if (Item.SelectedCategories?.Count() == 0)
         {
             await ErrorAlertAsync("Please select at least 1 category");
             return;

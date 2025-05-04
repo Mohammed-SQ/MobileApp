@@ -150,6 +150,13 @@ public partial class HomeViewModel : ObservableObject
                 SelectedCategory = Categories.First();
                 await LoadMenuItemsAsync();
             }
+            else
+            {
+                if (App.Current?.MainPage != null)
+                {
+                    await App.Current.MainPage.DisplayAlert("Error", "Failed to load menu categories. Please check your connection.", "OK");
+                }
+            }
         }
         finally
         {
@@ -187,7 +194,7 @@ public partial class HomeViewModel : ObservableObject
     private void AddToCart(MenuItemModel? item)
     {
         if (item == null) return;
-        var cartItem = CartItems.FirstOrDefault(c => c.ItemId == item.Id);
+        var cartItem = CartItems.FirstOrDefault(c => c.ItemId == int.Parse(item.Id)); // Parse Id to int
         if (cartItem != null)
         {
             cartItem.Quantity++;
@@ -196,7 +203,7 @@ public partial class HomeViewModel : ObservableObject
         {
             cartItem = new CartModel
             {
-                ItemId = item.Id,
+                ItemId = int.Parse(item.Id), // Parse Id to int
                 Name = item.Name ?? string.Empty,
                 Icon = item.Icon ?? string.Empty,
                 Price = item.Price,

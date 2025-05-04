@@ -1,5 +1,4 @@
-﻿
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -86,8 +85,15 @@ public partial class ManageMenuItemsViewModel : ObservableObject
         MenuItems.Clear();
         foreach (var item in items)
         {
-            // Fix: Link categories to items based on a category-item relationship
-            item.SelectedCategories = allCategories.Where(c => item.SelectedCategories.Any(sc => sc.Id == c.Id)).ToList();
+            // Ensure SelectedCategories is not null
+            if (item.SelectedCategories != null)
+            {
+                item.SelectedCategories = allCategories.Where(c => item.SelectedCategories.Any(sc => sc.Id == c.Id)).ToList();
+            }
+            else
+            {
+                item.SelectedCategories = new List<MenuCategoryModel>();
+            }
             MenuItems.Add(item);
         }
     }

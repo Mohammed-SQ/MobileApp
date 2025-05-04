@@ -80,22 +80,23 @@
                                         Grid.Column="0"
                                         Padding="5,0,0,0"
                                         Style="{StaticResource td}"
-                                        Text="{Binding Id, StringFormat='# {0}'}" />
+                                        Text="{Binding OrderId, StringFormat='# {0}'}" />
                                     <Label
                                         Grid.Row="1"
                                         Grid.Column="1"
                                         Style="{StaticResource td}"
-                                        Text="{Binding OrderDate, StringFormat='{0:dd/MM/yyyy HH:mm:ss}'}" />
+                                        Text="{Binding CreatedAt, StringFormat='{0:dd/MM/yyyy HH:mm:ss}'}" />
                                     <Label
                                         Grid.Row="1"
                                         Grid.Column="2"
                                         Style="{StaticResource td}"
-                                        Text="{Binding TotalAmountPaid, StringFormat='{0:C}'}" />
+                                        Text="{Binding Total, StringFormat='{0:C}'}" />
                                     <Label
                                         Grid.Row="1"
                                         Grid.Column="3"
                                         Style="{StaticResource td}"
                                         Text="{Binding PaymentMode}" />
+                                    <!-- Binding to new PaymentMode property -->
                                     <Label
                                         Grid.Row="1"
                                         Grid.Column="4"
