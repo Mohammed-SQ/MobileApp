@@ -1,34 +1,53 @@
-using CommunityToolkit.Mvvm.Input;
+using FMMSRestaurant.ViewModels;
 using MenuItem = FMMSRestaurant.Models.MenuItemModel;
 
-namespace FMMSRestaurant.Controls;
+namespace FMMSRestaurant.Pages;
 
-public partial class MenuItemsListControl : ContentView
+public partial class MainPage : ContentPage
 {
-    public MenuItemsListControl()
+    private readonly HomeViewModel _homeViewModel;
+    private readonly SettingsViewModel _settingsViewModel;
+
+    public MainPage(HomeViewModel homeViewModel, SettingsViewModel settingsViewModel)
     {
         InitializeComponent();
+
+        _homeViewModel = homeViewModel;
+        _settingsViewModel = settingsViewModel;
+
+        BindingContext = _homeViewModel;
+
+        Initialize();
     }
 
-    public static readonly BindableProperty ItemsProperty = BindableProperty.Create(
-        nameof(Items),
-        typeof(MenuItem[]),
-        typeof(MenuItemsListControl),
-        Array.Empty<MenuItem>()
-    );
-
-    public MenuItem[] Items
+    private async void Initialize()
     {
-        get => (MenuItem[])GetValue(ItemsProperty);
-        set => SetValue(ItemsProperty, value);
+        await _homeViewModel.InitializeAsync();
     }
 
-    public event Action<MenuItem>? OnItemSelected;
+    protected override async void OnSizeAllocated(double width, double height)
+    {
+        base.OnSizeAllocated(width, height);
 
-    [RelayCommand]
-    private void ItemSelected(MenuItem item) => OnItemSelected?.Invoke(item);
+        if (_settingsViewModel != null)
+        {
+            await _settingsViewModel.InitializeAsync();
+        }
+    }
 
-    public string ActionIcon { get; set; } = "shopping_bag.png";
+    private void OnCategorySelected(Models.MenuCategoryModel category)
+    {
+        if (category != null)
+        {
+            _homeViewModel.SelectCategoryCommand.Execute(category);
+        }
+    }
 
-    public bool IsEditingMode { set => ActionIcon = (value ? "edit_solid_24.png" : "shopping_bag.png"); }
+    private void OnItemSelected(MenuItem menuItem)
+    {
+        if (menuItem != null)
+        {
+            _homeViewModel.AddToCartCommand.Execute(menuItem);
+        }
+    }
 }

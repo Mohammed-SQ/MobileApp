@@ -1,13 +1,6 @@
-﻿using CommunityToolkit.Mvvm.Messaging.Messages;
+﻿namespace FMMSRestaurant.Models;
 
-namespace FMMSRestaurant.Models
+public record NameChangedMessage(string Name)
 {
-    public class NameChangedMessage : ValueChangedMessage<string>
-    {
-        public NameChangedMessage(string value) : base(value)
-        {
-        }
-
-        public static NameChangedMessage From(string value) => new(value);
-    }
+    public static NameChangedMessage From(string name) => new(name);
 }

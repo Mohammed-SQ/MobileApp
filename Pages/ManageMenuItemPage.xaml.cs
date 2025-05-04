@@ -1,36 +1,40 @@
+using FMMSRestaurant.Models;
 using FMMSRestaurant.ViewModels;
-using MenuItem = FMMSRestaurant.Models.MenuItemModel;
 
 namespace FMMSRestaurant.Pages;
 
 public partial class ManageMenuItemPage : ContentPage
 {
-    private readonly ManageMenuItemsViewModel _manageMenuItemViewModel;
+    private readonly ManageMenuItemsViewModel _viewModel;
 
-    public ManageMenuItemPage(ManageMenuItemsViewModel manageMenuItemViewModel)
+    public ManageMenuItemPage(ManageMenuItemsViewModel viewModel)
     {
         InitializeComponent();
-        _manageMenuItemViewModel = manageMenuItemViewModel;
-        BindingContext = _manageMenuItemViewModel;
-        InitializeAsync();
+        BindingContext = _viewModel = viewModel;
+
+        // Initialize the view model asynchronously
+        Loaded += async (s, e) => await _viewModel.InitializeAsync();
     }
 
-    private async void InitializeAsync()
+    protected override void OnAppearing()
     {
-        await _manageMenuItemViewModel.InitializeAsync();
-    }
+        base.OnAppearing();
 
-    private async void OnCategorySelected(Models.MenuCategoryModel category) => await _manageMenuItemViewModel.SelectCategoryCommand.ExecuteAsync(category.Id);
+        // Bind the Picker's SelectedIndexChanged to SelectCategoryCommand
+        var categoryPicker = this.FindByName<Picker>("CategoryPicker");
+        if (categoryPicker != null)
+        {
+            categoryPicker.SelectedIndexChanged += (s, e) =>
+            {
+                var selectedCategory = categoryPicker.SelectedItem as MenuCategoryModel;
+                if (selectedCategory != null)
+                {
+                    _viewModel.SelectCategoryCommand.Execute(selectedCategory);
+                }
+            };
+        }
 
-    private async void OnItemSelected(MenuItem menuItem) => await _manageMenuItemViewModel.EditMenuItemCommand.ExecuteAsync(menuItem);
-
-    private void SaveMenuItemFormControl_OnCancel()
-    {
-        _manageMenuItemViewModel.CancelCommand.Execute(null);
-    }
-
-    private async void SaveMenuItemFormControl_OnSaveItem(Models.MenuItemModel menuItemModel)
-    {
-        await _manageMenuItemViewModel.SaveMenuItemCommand.ExecuteAsync(menuItemModel);
+        // Command bindings are already set in XAML, so these are redundant
+        // If you need to set them programmatically, ensure they aren't duplicated in XAML
     }
 }

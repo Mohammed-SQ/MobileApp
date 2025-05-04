@@ -1,17 +1,15 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <ContentPage
     x:Class="FMMSRestaurant.Pages.MainPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:controls="clr-namespace:FMMSRestaurant.Controls"
-    xmlns:data="clr-namespace:FMMSRestaurant.Data"
-    xmlns:models="clr-namespace:FMMSRestaurant.Models"
-    xmlns:vm="clr-namespace:FMMSRestaurant.ViewModels"
+    xmlns:controls="clr-namespace:FMMSRestaurant.Controls;assembly=FMMSRestaurant"
+    xmlns:models="clr-namespace:FMMSRestaurant.Models;assembly=FMMSRestaurant"
+    xmlns:vm="clr-namespace:FMMSRestaurant.ViewModels;assembly=FMMSRestaurant"
     x:DataType="vm:HomeViewModel"
     Shell.NavBarIsVisible="False">
 
     <Grid ColumnDefinitions=".75*, .25*">
-
         <Grid
             Grid.Column="0"
             Padding="15"
@@ -30,16 +28,13 @@
                 OnCategorySelected="OnCategorySelected" />
 
             <Grid Grid.Row="2">
-
                 <controls:MenuItemsListControl Items="{Binding MenuItems}" OnItemSelected="OnItemSelected" />
-
                 <BoxView
                     HorizontalOptions="Fill"
                     IsVisible="{Binding IsLoading}"
                     Opacity="0.5"
                     VerticalOptions="Fill"
                     Color="{StaticResource LightWeat}" />
-
                 <ActivityIndicator
                     HeightRequest="25"
                     HorizontalOptions="Center"
@@ -48,7 +43,6 @@
                     WidthRequest="25"
                     Color="Maroon" />
             </Grid>
-
         </Grid>
 
         <Grid
@@ -178,7 +172,6 @@
                     <Border.Shadow>
                         <Shadow Brush="Maroon" Radius="15" />
                     </Border.Shadow>
-
                     <Grid
                         ColumnDefinitions="2*, 3*"
                         RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto"
@@ -205,7 +198,7 @@
                             <Label
                                 Padding="5,0"
                                 BackgroundColor="Wheat"
-                                Text="{Binding TaxPrecentage, StringFormat='{0}%'}"
+                                Text="{Binding TaxPercentage, StringFormat='{0}%'}"
                                 TextColor="Blue"
                                 TextDecorations="Underline"
                                 ToolTipProperties.Text="Click to change tax percentage"
@@ -291,6 +284,5 @@
                 </Border>
             </VerticalStackLayout>
         </Grid>
-
     </Grid>
 </ContentPage>
