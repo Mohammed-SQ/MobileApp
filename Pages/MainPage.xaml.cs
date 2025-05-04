@@ -16,26 +16,29 @@ public partial class MainPage : ContentPage
         BindingContext = _homeViewModel;
     }
 
-    protected override async void OnAppearing()
-    {
-        base.OnAppearing();
-        await _homeViewModel.InitializeAsync();
-        await _settingsViewModel.InitializeAsync();
-    }
-
-    private void OnCategorySelected(object sender, MenuCategoryModel category)
-    {
-        if (category != null)
-        {
-            _homeViewModel.SelectCategoryCommand.Execute(category);
+            Initialize();
         }
-    }
+
+        private async void Initialize()
+        {
+            await _homeViewModel.InitializeAsync();
+        }
+
+        protected override async void OnSizeAllocated(double width, double height)
+        {
+            base.OnSizeAllocated(width, height);
+
+            if (_settingsViewModel != null)
+            {
+                await _settingsViewModel.InitializeAsync();
+            }
+        }
 
     private void OnItemSelected(object sender, MenuItemModel menuItem)
     {
         if (menuItem != null)
         {
-            _homeViewModel.AddToCartCommand.Execute(menuItem);
+            _homeViewModel.AddToCartCommand.Execute(menuItem); // Add item to cart
         }
     }
 }

@@ -8,8 +8,9 @@
     x:DataType="vm:HomeViewModel"
     Shell.NavBarIsVisible="False">
 
-	<Grid ColumnDefinitions=".75*, .25*">
-		<Grid
+    <Grid ColumnDefinitions=".75*, .25*">
+
+        <Grid
             Grid.Column="0"
             Padding="15"
             RowDefinitions="Auto, Auto, *"
@@ -26,23 +27,27 @@
                 Categories="{Binding Categories}"
                 OnCategorySelected="OnCategorySelected" />
 
-			<Grid Grid.Row="2">
-				<controls:MenuItemsListControl Items="{Binding MenuItems}" OnItemSelected="OnItemSelected" />
-				<BoxView
+            <Grid Grid.Row="2">
+
+                <controls:MenuItemsListControl Items="{Binding MenuItems}" OnItemSelected="OnItemSelected" />
+
+                <BoxView
                     HorizontalOptions="Fill"
                     IsVisible="{Binding IsLoading}"
                     Opacity="0.5"
                     VerticalOptions="Fill"
                     Color="{StaticResource LightWeat}" />
-				<ActivityIndicator
+
+                <ActivityIndicator
                     HeightRequest="25"
                     HorizontalOptions="Center"
                     IsRunning="{Binding IsLoading}"
                     VerticalOptions="Center"
                     WidthRequest="25"
                     Color="Maroon" />
-			</Grid>
-		</Grid>
+            </Grid>
+
+        </Grid>
 
 		<Grid
             Grid.Column="1"
@@ -168,10 +173,11 @@
                     BackgroundColor="White"
                     StrokeShape="RoundRectangle 10"
                     StrokeThickness="0">
-					<Border.Shadow>
-						<Shadow Brush="Maroon" Radius="15" />
-					</Border.Shadow>
-					<Grid
+                    <Border.Shadow>
+                        <Shadow Brush="Maroon" Radius="15" />
+                    </Border.Shadow>
+
+                    <Grid
                         ColumnDefinitions="2*, 3*"
                         RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto"
                         RowSpacing="8">
@@ -274,14 +280,15 @@
                                 Text="Paid Online"
                                 TextColor="White"
                                 ToolTipProperties.Text="Close Order">
-								<Button.CommandParameter>
-									<x:Boolean>false</x:Boolean>
-								</Button.CommandParameter>
-							</Button>
-						</Grid>
-					</Grid>
-				</Border>
-			</VerticalStackLayout>
-		</Grid>
-	</Grid>
+                                <Button.CommandParameter>
+                                    <x:Boolean>false</x:Boolean>
+                                </Button.CommandParameter>
+                            </Button>
+                        </Grid>
+                    </Grid>
+                </Border>
+            </VerticalStackLayout>
+        </Grid>
+
+    </Grid>
 </ContentPage>
