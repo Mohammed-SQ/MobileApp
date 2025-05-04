@@ -1,5 +1,6 @@
 using FMMSRestaurant.Models;
 using FMMSRestaurant.ViewModels;
+using Microsoft.Maui.Controls;
 
 namespace FMMSRestaurant.Pages;
 
@@ -16,29 +17,42 @@ public partial class MainPage : ContentPage
         BindingContext = _homeViewModel;
     }
 
-            Initialize();
-        }
-
-        private async void Initialize()
-        {
-            await _homeViewModel.InitializeAsync();
-        }
-
-        protected override async void OnSizeAllocated(double width, double height)
-        {
-            base.OnSizeAllocated(width, height);
-
-            if (_settingsViewModel != null)
-            {
-                await _settingsViewModel.InitializeAsync();
-            }
-        }
-
-    private void OnItemSelected(object sender, MenuItemModel menuItem)
+    protected override async void OnAppearing()
     {
-        if (menuItem != null)
+        base.OnAppearing();
+        await _homeViewModel.InitializeAsync();
+    }
+
+    protected override async void OnSizeAllocated(double width, double height)
+    {
+        base.OnSizeAllocated(width, height);
+        if (_settingsViewModel != null)
         {
-            _homeViewModel.AddToCartCommand.Execute(menuItem); // Add item to cart
+            await _settingsViewModel.InitializeAsync();
+        }
+    }
+
+    private void OnItemSelected(object sender, SelectionChangedEventArgs e)
+    {
+        if (e.CurrentSelection.FirstOrDefault() is MenuItemModel menuItem)
+        {
+            _homeViewModel.AddToCartCommand.Execute(menuItem);
+        }
+        if (sender is CollectionView collectionView)
+        {
+            collectionView.SelectedItem = null;
+        }
+    }
+
+    private void OnCategorySelected(object sender, SelectionChangedEventArgs e)
+    {
+        if (e.CurrentSelection.FirstOrDefault() is MenuCategoryModel category)
+        {
+            _homeViewModel.SelectCategoryCommand?.Execute(category);
+        }
+        if (sender is CollectionView collectionView)
+        {
+            collectionView.SelectedItem = null;
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -53,8 +54,8 @@ public partial class ManageMenuItemsViewModel : ObservableObject
         AddCommand = new RelayCommand(AddItem);
         EditMenuItemCommand = new RelayCommand(EditItem, CanEdit);
         DeleteCommand = new RelayCommand(DeleteItem, CanDelete);
-        SelectCategoryCommand = new RelayCommand<MenuCategoryModel>(SelectCategory);
-        SaveMenuItemCommand = new RelayCommand(SaveMenuItemAsync, CanSave);
+        SelectCategoryCommand = new AsyncRelayCommand<MenuCategoryModel>(SelectCategoryAsync);
+        SaveMenuItemCommand = new AsyncRelayCommand(SaveMenuItemAsync);
         CancelCommand = new RelayCommand(Cancel);
     }
 
@@ -78,11 +79,15 @@ public partial class ManageMenuItemsViewModel : ObservableObject
     private async Task LoadMenuItemsAsync()
     {
         if (SelectedCategory == null) return;
+
         var items = await _dbService.GetMenuItemsByCategoryIdAsync(SelectedCategory.Id);
+        var allCategories = await _dbService.GetMenuCategoriesAsync();
+
         MenuItems.Clear();
         foreach (var item in items)
         {
-            item.SelectedCategories = await _dbService.GetCategoriesByMenuItemIdAsync(item.Id);
+            // Fix: Link categories to items based on a category-item relationship
+            item.SelectedCategories = allCategories.Where(c => item.SelectedCategories.Any(sc => sc.Id == c.Id)).ToList();
             MenuItems.Add(item);
         }
     }
@@ -94,23 +99,18 @@ public partial class ManageMenuItemsViewModel : ObservableObject
         SelectedItem = newItem;
     }
 
-    private bool CanEdit()
-    {
-        return SelectedItem != null;
-    }
+    private bool CanEdit() => SelectedItem != null;
 
     private void EditItem()
     {
         if (SelectedItem != null)
         {
-            // Edit logic here
+            // Open edit form or set up editing UI
+            // Example: Navigate to SaveMenuItemFormControl with SelectedItem
         }
     }
 
-    private bool CanDelete()
-    {
-        return SelectedItem != null;
-    }
+    private bool CanDelete() => SelectedItem != null;
 
     private void DeleteItem()
     {
@@ -121,38 +121,57 @@ public partial class ManageMenuItemsViewModel : ObservableObject
         }
     }
 
-    private void SelectCategory(MenuCategoryModel? category)
+    private async Task SelectCategoryAsync(MenuCategoryModel? category)
     {
         if (category != null)
         {
             SelectedCategory = category;
-            Task.Run(LoadMenuItemsAsync);
+            await LoadMenuItemsAsync();
         }
     }
 
-    private bool CanSave()
-    {
-        return SelectedItem != null;
-    }
+    private bool CanSave() => SelectedItem != null;
 
-    private async void SaveMenuItemAsync()
+    private async Task SaveMenuItemAsync()
     {
-        if (SelectedItem != null)
+        if (SelectedItem != null && ValidateMenuItem(SelectedItem))
         {
-            var result = await _dbService.SaveMenuItemAsync(SelectedItem);
-            if (result != null)
+            try
             {
-                // Handle error with null check
-                if (App.Current?.MainPage != null)
+                var result = await _dbService.SaveMenuItemAsync(SelectedItem);
+                if (result != null)
                 {
-                    await App.Current.MainPage.DisplayAlert("Error", result, "OK");
+                    if (App.Current?.MainPage != null)
+                    {
+                        await App.Current.MainPage.DisplayAlert("Error", result, "OK");
+                    }
+                }
+                else
+                {
+                    await LoadMenuItemsAsync();
                 }
             }
-            else
+            catch (Exception ex)
             {
-                await LoadMenuItemsAsync();
+                Console.WriteLine($"Error saving menu item: {ex.Message}");
+                if (App.Current?.MainPage != null)
+                {
+                    await App.Current.MainPage.DisplayAlert("Error", "An unexpected error occurred.", "OK");
+                }
             }
         }
+        else
+        {
+            if (App.Current?.MainPage != null)
+            {
+                await App.Current.MainPage.DisplayAlert("Validation Error", "Please fill in all required fields.", "OK");
+            }
+        }
+    }
+
+    private bool ValidateMenuItem(MenuItemModel item)
+    {
+        return !string.IsNullOrWhiteSpace(item.Name) && item.Price > 0;
     }
 
     private void Cancel()

@@ -6,7 +6,6 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using FMMSRestaurant.Models;
 using FMMSRestaurant.Services;
-using FMMSRestaurant.ViewModels;
 
 namespace FMMSRestaurant.ViewModels;
 
@@ -87,6 +86,13 @@ public partial class HomeViewModel : ObservableObject
     {
         get => _total;
         set => SetProperty(ref _total, value);
+    }
+
+    private DateTime _currentDateTime = DateTime.Now;
+    public DateTime CurrentDateTime
+    {
+        get => _currentDateTime;
+        set => SetProperty(ref _currentDateTime, value);
     }
 
     public ICommand LoadItemsCommand { get; }

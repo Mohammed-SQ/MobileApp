@@ -10,7 +10,13 @@ public partial class SettingsViewModel : ObservableObject
 
     private bool _isInitialized;
 
-    public async ValueTask InitializeAsync()
+    // Remove direct initialization from constructor context
+    public SettingsViewModel()
+    {
+        // No initialization here; defer to a view or App
+    }
+
+    public async Task InitializeAsync()
     {
         if (_isInitialized) return;
 
