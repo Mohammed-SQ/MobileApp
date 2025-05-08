@@ -1,0 +1,95 @@
+is_global = true
+build_property.TargetFramework = net8.0-windows10.0.19041.0
+build_property.TargetPlatformMinVersion = 10.0.17763.0
+build_property.UsingMicrosoftNETSdkWeb = 
+build_property.ProjectTypeGuids = 9A19103F-16F7-4668-BE54-9A1E7A4F7556
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = FMMSRestaurant
+build_property.ProjectDir = C:\Users\ll\Source\Repos\MobileApp\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
+build_property.CsWinRTAotOptimizerEnabled = true
+build_property.CsWinRTAotExportsEnabled = 
+build_property.CsWinRTRcwFactoryFallbackGeneratorForceOptIn = 
+build_property.CsWinRTRcwFactoryFallbackGeneratorForceOptOut = 
+build_property.CsWinRTCcwLookupTableGeneratorEnabled = true
+build_property.CsWinRTMergeReferencedActivationFactories = 
+build_property.CsWinRTAotWarningLevel = 
+build_property.CsWinRTUseWindowsUIXamlProjections = false
+build_property.EffectiveAnalysisLevelStyle = 8.0
+build_property.EnableCodeStyleSeverity = 
+
+[C:/Users/ll/Source/Repos/MobileApp/App.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = FMMSRestaurant.App.xaml
+build_metadata.AdditionalFiles.TargetPath = App.xaml
+build_metadata.AdditionalFiles.RelativePath = App.xaml
+
+[C:/Users/ll/Source/Repos/MobileApp/AppShell.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = FMMSRestaurant.AppShell.xaml
+build_metadata.AdditionalFiles.TargetPath = AppShell.xaml
+build_metadata.AdditionalFiles.RelativePath = AppShell.xaml
+
+[C:/Users/ll/Source/Repos/MobileApp/Controls/CategoriesListControl.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = FMMSRestaurant.Controls.CategoriesListControl.xaml
+build_metadata.AdditionalFiles.TargetPath = Controls\CategoriesListControl.xaml
+build_metadata.AdditionalFiles.RelativePath = Controls\CategoriesListControl.xaml
+
+[C:/Users/ll/Source/Repos/MobileApp/Controls/CurrentDateTimeControl.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = FMMSRestaurant.Controls.CurrentDateTimeControl.xaml
+build_metadata.AdditionalFiles.TargetPath = Controls\CurrentDateTimeControl.xaml
+build_metadata.AdditionalFiles.RelativePath = Controls\CurrentDateTimeControl.xaml
+
+[C:/Users/ll/Source/Repos/MobileApp/Controls/HelpPopup.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = FMMSRestaurant.Controls.HelpPopup.xaml
+build_metadata.AdditionalFiles.TargetPath = Controls\HelpPopup.xaml
+build_metadata.AdditionalFiles.RelativePath = Controls\HelpPopup.xaml
+
+[C:/Users/ll/Source/Repos/MobileApp/Controls/MenuItemsListControl.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = FMMSRestaurant.Controls.MenuItemsListControl.xaml
+build_metadata.AdditionalFiles.TargetPath = Controls\MenuItemsListControl.xaml
+build_metadata.AdditionalFiles.RelativePath = Controls\MenuItemsListControl.xaml
+
+[C:/Users/ll/Source/Repos/MobileApp/Controls/SaveMenuItemFormControl.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = FMMSRestaurant.Controls.SaveMenuItemFormControl.xaml
+build_metadata.AdditionalFiles.TargetPath = Controls\SaveMenuItemFormControl.xaml
+build_metadata.AdditionalFiles.RelativePath = Controls\SaveMenuItemFormControl.xaml
+
+[C:/Users/ll/Source/Repos/MobileApp/Pages/MainPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = FMMSRestaurant.Pages.MainPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Pages\MainPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Pages\MainPage.xaml
+
+[C:/Users/ll/Source/Repos/MobileApp/Pages/ManageMenuItemPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = FMMSRestaurant.Pages.ManageMenuItemPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Pages\ManageMenuItemPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Pages\ManageMenuItemPage.xaml
+
+[C:/Users/ll/Source/Repos/MobileApp/Pages/OrdersPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = FMMSRestaurant.Pages.OrdersPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Pages\OrdersPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Pages\OrdersPage.xaml
+
+[C:/Users/ll/Source/Repos/MobileApp/Resources/Styles/Colors.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = FMMSRestaurant.Resources.Styles.Colors.xaml
+build_metadata.AdditionalFiles.TargetPath = Resources\Styles\Colors.xaml
+build_metadata.AdditionalFiles.RelativePath = Resources\Styles\Colors.xaml
+
+[C:/Users/ll/Source/Repos/MobileApp/Resources/Styles/Styles.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = FMMSRestaurant.Resources.Styles.Styles.xaml
+build_metadata.AdditionalFiles.TargetPath = Resources\Styles\Styles.xaml
+build_metadata.AdditionalFiles.RelativePath = Resources\Styles\Styles.xaml
